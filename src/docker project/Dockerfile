@@ -1,8 +1,9 @@
-# Use a base image (e.g., Python, Node, etc.)
+# Use a base image
 FROM python:3.10
 
 # Set the working directory
-WORKDIR /
+WORKDIR /app  
+
 
 # Copy the requirements file into the container
 COPY requirements.txt .
