@@ -1,34 +1,35 @@
 from flask import Flask, jsonify
-import random
-import time
 from sqlalchemy import create_engine, text
-from faker import Faker
 import logging
+import time
+from faker import Faker
+import random
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Logger setup
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 # Create database engine
 def get_db_engine():
     return create_engine('postgresql://user:password@db:5432/mydatabase')
 
+# Initialize Faker
+fake = Faker('en_US')
+
+# Define your update query using parameterized input
+update_query = text("UPDATE pasta_db.storage_levels SET level = :level, wet_type = :wet_type WHERE id = :id")
+
 # Retry mechanism for connecting to the database
 while True:
     try:
-        db_engine = get_db_engine().connect()
+        db_engine = get_db_engine()  # Create the engine
         LOGGER.info("Connected successfully")
         break
     except Exception as e:
         LOGGER.warning(f"++++ Retrying connection to the database because of the issue {str(e)}++++")
         time.sleep(5)  # Wait before retrying
 
-# Initialize Faker
-fake = Faker('en_US')
-
-# Define your update query using parameterized input
-update_query = text("UPDATE pasta_db.storage_levels SET level = :level, wet_type = :wet_type WHERE id = :id")
-i=0
+i = 0
 while True:
     new_level = fake.random_int(min=0, max=100)
     new_wet_type = random.choice(['fresh', 'dry'])  # Randomly choose between 'fresh' and 'dry'
@@ -37,19 +38,24 @@ while True:
     storage_level_id = i + fake.random_int(min=1, max=3)
 
     try:
-        # Execute the update query with parameters
-        db_engine.execute(update_query.execution_options(autocommit=True), {
-            'level': new_level,
-            'wet_type': new_wet_type,
-            'id': storage_level_id
-        })
-        LOGGER.info(f"Updated storage_levels with id {storage_level_id}: level={new_level}, wet_type={new_wet_type}")
-        
-        select_query = text("SELECT * FROM pasta_db.storage_levels")
-        result = db_engine.execute(select_query)
-        rows = result.fetchall()  # This retrieves all rows from the result
-        for row in rows:
-            LOGGER.info(row)  # Log each row
+        # Use a context manager for transaction handling and execute the query
+        with db_engine.connect() as connection:  # Get a connection
+            # Begin a transaction
+            with connection.begin():  # This begins a new transaction
+                # Execute the update query with parameters
+                connection.execute(update_query, {
+                    'level': new_level,
+                    'wet_type': new_wet_type,
+                    'id': storage_level_id
+                })
+                LOGGER.info(f"Updated storage_levels with id {storage_level_id}: level={new_level}, wet_type={new_wet_type}")
+                
+                # Fetch and log the current state of the table
+                select_query = text("SELECT * FROM pasta_db.storage_levels")
+                result = connection.execute(select_query)
+                rows = result.fetchall()  # This retrieves all rows from the result
+                for row in rows:
+                    LOGGER.info(row)  # Log each row
         
     except Exception as e:
         LOGGER.error(f"Error updating storage_levels with id {storage_level_id}: {str(e)}")
