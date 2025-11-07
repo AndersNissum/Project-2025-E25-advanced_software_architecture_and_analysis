@@ -1,51 +1,63 @@
 from flask import Flask, jsonify
-
 import random
 import time
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 from faker import Faker
 import logging
-# Configure database
-import os
-#app = Flask(__name__)
 
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 LOGGER = logging.getLogger(__name__)
 
-#create_engine => username, password, hostname:port, database
+# Create database engine
 def get_db_engine():
-    return create_engine('postgresql://{}:{}@{}:{}/{}'.format('user', 'password', 'db', '5432', 'mydatabase'))
+    return create_engine('postgresql://user:password@db:5432/mydatabase')
 
+# Retry mechanism for connecting to the database
 while True:
     try:
         db_engine = get_db_engine().connect()
-        if db_engine:
-            update_query = f"UPDATE pasta_db.storage_levels SET level = {52}, wet_type = 'dry' WHERE id = {2}"
-            db_engine.execute(text(update_query).execution_options(autocommit=True))
-            print("se gamao poutanoskilo")
-            break
+        LOGGER.info("Connected successfully")
+        break
     except Exception as e:
         LOGGER.warning(f"++++ Retrying connection to the database because of the issue {str(e)}++++")
+        time.sleep(5)  # Wait before retrying
 
-#retry mechanism for connect to database
+# Initialize Faker
 fake = Faker('en_US')
-i = 0
 
-
+# Define your update query using parameterized input
+update_query = text("UPDATE pasta_db.storage_levels SET level = :level, wet_type = :wet_type WHERE id = :id")
+i=0
 while True:
     new_level = fake.random_int(min=0, max=100)
     new_wet_type = random.choice(['fresh', 'dry'])  # Randomly choose between 'fresh' and 'dry'
-    storage_level_id = i+1
+    
+    # Incrementing the ID for each iteration
+    storage_level_id = i + fake.random_int(min=1, max=3)
 
-    update_query = f"UPDATE pasta_db.storage_levels SET level = {new_level}, wet_type = '{new_wet_type}' WHERE id = {storage_level_id}"
-    db_engine.execute(text(update_query).execution_options(autocommit=True))
+    try:
+        # Execute the update query with parameters
+        db_engine.execute(update_query.execution_options(autocommit=True), {
+            'level': new_level,
+            'wet_type': new_wet_type,
+            'id': storage_level_id
+        })
+        LOGGER.info(f"Updated storage_levels with id {storage_level_id}: level={new_level}, wet_type={new_wet_type}")
+        
+        select_query = text("SELECT * FROM pasta_db.storage_levels")
+        result = db_engine.execute(select_query)
+        rows = result.fetchall()  # This retrieves all rows from the result
+        for row in rows:
+            LOGGER.info(row)  # Log each row
+        
+    except Exception as e:
+        LOGGER.error(f"Error updating storage_levels with id {storage_level_id}: {str(e)}")
+
     time.sleep(20)
+    
 
-
-
-
-
+db_engine.close()
 #app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://user:password@db:5432/mydatabase')
 #app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize the database
