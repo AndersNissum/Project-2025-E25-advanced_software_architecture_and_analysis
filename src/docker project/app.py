@@ -27,7 +27,7 @@ while True:
         LOGGER.info("Connected successfully")
         break
     except Exception as e:
-        LOGGER.warning(f"++++ Retrying connection to the database because of the issue {str(e)}++++")
+        LOGGER.warning(f"Retrying connection to the database because of the issue {str(e)}")
         time.sleep(5)  # Wait before retrying
 
 def update_storage_levels():
@@ -69,7 +69,7 @@ def update_storage_levels():
         time.sleep(20)  # Pause for 20 seconds before the next iteration
 
 
-def handleBatches():
+def insertBatches():
     # Insert query with parameters for the batches table
     insert_query = text("""
         INSERT INTO pasta_db.batches (id, inStock, isFresh, productionDate, blade_type) 
@@ -79,7 +79,7 @@ def handleBatches():
     i = 1  # Initialize `i` for ID calculation, starting from 1
     while True:
         new_inStock = random.randint(10, 100)  # Random integer for inStock between 10 and 100
-        new_isFresh = random.choice([True, False])  # Randomly choose between True (fresh) and False (not fresh)
+        new_isFresh = random.choice([True, False])  # Randomly choose between True (fresh) and False (dry)
         new_blade_type = random.choice(['A', 'B'])  # Randomly choose between blade types A and B
         
         # Assign the current ID
@@ -99,20 +99,36 @@ def handleBatches():
                         'blade_type': new_blade_type
                     })
                     LOGGER.info(f"Inserted batch with id {batch_id}: inStock={new_inStock}, isFresh={new_isFresh}, blade_type={new_blade_type}")
-
+                    # Select query to fetch all rows for logging
+                    select_query = text("SELECT id, inStock FROM pasta_db.batches WHERE inStock > 0")
+                    result = connection.execute(select_query)
+                    batches = result.fetchall()  # This retrieves all rows from the result
+                    
+                    for batch_id, in_stock in batches:
+                        # Generate a random integer to decrease inStock
+                        random_int = random.randint(1, in_stock)
+                        new_stock = max(in_stock - random_int, 0)
+                        connection.execute("""
+                            UPDATE batches
+                            SET inStock = ?
+                            WHERE id = ?
+                        """, (new_stock, batch_id))
         except Exception as e:
             LOGGER.error(f"Error inserting batch with id {batch_id}: {str(e)}")
 
         time.sleep(5)  # Pause for 20 seconds before the next iteration
 
 
+
+
+
 # Create threads for each task
-update_thread = threading.Thread(target=update_storage_levels)
-another_thread = threading.Thread(target=handleBatches)
+updateStorageLevels_thread = threading.Thread(target=update_storage_levels)
+insertBatches_thread = threading.Thread(target=insertBatches)
 
 # Start the threads
-update_thread.start()
-another_thread.start()
+updateStorageLevels_thread.start()
+insertBatches_thread.start()
 
 # Optionally, you can join the threads if you want the main program to wait for them
 #update_thread.join()
