@@ -12,3 +12,25 @@ INSERT INTO pasta_db.storage_levels (type, wet_type, level) VALUES
 ('B', 'dry', 40),
 ('A', 'dry', 60),
 ('B', 'fresh', 75);
+
+
+CREATE TABLE pasta_db.batches (
+    id BIGINT PRIMARY KEY,               -- Unique identifier for each batch
+    blade_type VARCHAR(1) NOT NULL CHECK (blade_type IN ('A', 'B')), -- Type of blade (A or B)
+    isFresh BOOLEAN NOT NULL,            -- Indicates if the batch is fresh or dry
+    productionDate TIMESTAMP NOT NULL,   -- Date of production
+    inStock INT NOT NULL CHECK (inStock >= 0)  -- Amount in stock
+);
+
+INSERT INTO pasta_db.batches (id, blade_type, isFresh, productionDate, inStock) VALUES
+(1, 'A', TRUE, NOW(), 10),
+(2, 'A', FALSE, NOW(), 10),
+(3, 'B', TRUE, NOW(), 10),
+(4, 'B', FALSE, NOW(), 10),
+(5, 'A', TRUE, NOW(), 10),
+(6, 'A', FALSE, NOW(), 10),
+(7, 'B', TRUE, NOW(), 10),
+(8, 'B', FALSE, NOW(), 10),
+(9, 'A', TRUE, NOW(), 10),
+(10, 'A', FALSE, NOW(), 10);
+
