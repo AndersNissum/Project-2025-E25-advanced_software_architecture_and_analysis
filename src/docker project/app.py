@@ -90,7 +90,7 @@ VALUES (:id, :blade_type, :isFresh, NOW(), :inStock)
 
 i = 11  # Initialize `i` for ID calculation, starting from 1
 while True:
-    new_inStock = 10  # Random integer for inStock between 10 and 100
+    new_inStock = 10  
     new_isFresh = random.choice([True, False])  # Randomly choose between True (fresh) and False (dry)
     new_blade_type = random.choice(['A', 'B'])  # Randomly choose between blade types A and B
 
@@ -115,23 +115,29 @@ while True:
                 select_query = text("SELECT * FROM pasta_db.batches WHERE inStock > 0")
                 result = connection.execute(select_query)
                 batches = result.fetchall()  # This retrieves all rows from the result
-                """
+                MINIMUM_STOCK_THRESHOLD = 10  # Define a minimum stock level
                 for batch in batches:
-                    batch_id=batch[0]
-                    in_stock=batch[4]
-                    # Generate a random integer to decrease inStock
-                    random_int = fake.random_int(min=0, max=in_stock)
+                    batch_id = batch[0]  #  first column is the ID
+                    in_stock = batch[4]  #  fifth column is inStock
+                    
+                    # Generate a random integer to decrease inStock, ensuring it does not reduce below the minimum threshold
+                    if in_stock >= MINIMUM_STOCK_THRESHOLD:
+                        random_int = fake.random_int(min=0, max=in_stock)  # Adjust max to avoid going below the threshold
+                    else:
+                        random_int = 0  # If in_stock is already low, do not reduce further
+                    
                     new_stock = max(in_stock - random_int, 0)
+
                     # Update the inStock value for the batch
-                    connection.execute(text(""
+                    connection.execute(text("""
                         UPDATE pasta_db.batches
                         SET inStock = :new_stock
                         WHERE id = :batch_id
-                    ""), {
+                    """), {
                         'new_stock': new_stock,
                         'batch_id': batch_id
                     })
-                """
+                
                 
                 # here i check for values >80 <20
 
@@ -182,7 +188,7 @@ while True:
     except Exception as e:
         LOGGER.error(f"Error {str(e)}")
 
-    time.sleep(5)  # Pause for 20 seconds before the next iteration
+    time.sleep(5)  # Pause for 5 seconds before the next iteration
 
 
 
