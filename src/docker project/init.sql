@@ -8,10 +8,10 @@ CREATE TABLE pasta_db.storage_levels (
 );
 
 INSERT INTO pasta_db.storage_levels (type, wet_type, level) VALUES
-('A', 'fresh', 25),
-('B', 'dry', 40),
-('A', 'dry', 60),
-('B', 'fresh', 75);
+('A', 'fresh', 21),
+('B', 'dry', 21),
+('A', 'dry', 21),
+('B', 'fresh', 21);
 
 
 CREATE TABLE pasta_db.batches (
