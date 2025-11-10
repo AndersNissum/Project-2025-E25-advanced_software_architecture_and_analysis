@@ -95,7 +95,7 @@ def insertBatch():
         except Exception as e:
             LOGGER.error(f"Error {str(e)}")
 
-        time.sleep(10)  # Pause for 40 seconds before the next iteration
+        time.sleep(5)  # Pause for 40 seconds before the next iteration
 
 def reduceBatches():
     while True:
@@ -108,16 +108,21 @@ def reduceBatches():
                     select_query = text("SELECT * FROM pasta_db.batches WHERE inStock > 0")
                     result = connection.execute(select_query)
                     batches = result.fetchall()  # This retrieves all rows from the result
-                    MINIMUM_STOCK_THRESHOLD = 10  # Define a minimum stock level
+                    #MINIMUM_STOCK_THRESHOLD = 10  # Define a minimum stock level
+                    reducedCount=20
                     for batch in batches:
                         batch_id = batch[0]  #  first column is the ID
                         in_stock = batch[4]  #  fifth column is inStock
                         # Generate a random integer to decrease inStock, ensuring it does not reduce below the minimum threshold
-                        if in_stock >= MINIMUM_STOCK_THRESHOLD:
-                            random_int = fake.random_int(min=0, max=in_stock)  # Adjust max to avoid going below the threshold
-                        else:
-                            random_int = 0  # If in_stock is already low, do not reduce further
-                        new_stock = max(in_stock - random_int, 0)
+                    
+                        random_int = fake.random_int(min=0, max=in_stock)  # Adjust max to avoid going below the threshold\
+                        
+                        amount = min(random_int,reducedCount)
+                        reducedCount -= amount
+                    
+                    
+                        random_int = 0  # If in_stock is already low, do not reduce further
+                        new_stock = max(in_stock - amount, 0)
                         # Update the inStock value for the batch
                         connection.execute(text("""
                             UPDATE pasta_db.batches
@@ -158,7 +163,7 @@ def check_UpdateStorageLevels():
                         })
                         
                         total_stock = result.scalar() or 0  # Get the total or 0 if None
-                        LOGGER.info(f"Total stock is {total_stock}")
+                        #LOGGER.info(f"Total stock is {total_stock}")
                         # Calculate storage level percentage
                         new_storage_level = (total_stock / max_storage) * 100
                         
@@ -189,9 +194,6 @@ insertBatch_thread.start()
 reduceBatches_thread.start()
 check_UpdateStorageLevels_thread.start()
 
-
-#update_thread.join()
-#another_thread.join()
 
 """
 MINIMUM_STOCK_THRESHOLD = 10  # Define a minimum stock level
@@ -330,4 +332,23 @@ while True:
             LOGGER.error(f"Error updating storage levels: {str(e)}")
         time.sleep(10)  # Pause for 20 seconds before the next iteration
     """
+
+"""
+Tools for availability measurement
+prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - mynetwork
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+"""
     
