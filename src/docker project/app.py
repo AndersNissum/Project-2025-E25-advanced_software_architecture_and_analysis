@@ -351,4 +351,14 @@ prometheus:
     networks:
       - mynetwork
 """
+"""
+Prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'pasta-system'
+    static_configs:
+      - targets: ['pasta-system:8000']  # Adjust if your app exposes metrics here
+"""
     
