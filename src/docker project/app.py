@@ -70,8 +70,12 @@ def insertBatch():
                     select_query = text("SELECT * FROM pasta_db.storage_levels")
                     select_query_result = connection.execute(select_query)
                     storage_levels = select_query_result.fetchall()
+                    countOfStorageLevelsBelowOrAbove= 0
                     for storage_level in storage_levels:
                         #LOGGER.info(storage_level)
+                        if storage_level[3]<20 or storage_level[3]>80:
+                            countOfStorageLevelsBelowOrAbove+=1
+                            # add scheduler logic to change production plan
                         if storage_level[3]<5:
                             new_inStock = 10  
                             new_isFresh = random.choice([True, False])  # Randomly choose between True (fresh) and False (dry)
@@ -89,6 +93,8 @@ def insertBatch():
                                 'inStock': new_inStock
                             })
                             LOGGER.info("Inserted new batch because a storage level is less than 5%")
+                    if countOfStorageLevelsBelowOrAbove>0:
+                        LOGGER.warning("Scheduler should change production plan")
                     
                     
 
