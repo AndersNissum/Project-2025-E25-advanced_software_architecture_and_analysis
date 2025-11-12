@@ -115,15 +115,10 @@ def insertBatch():
                         if storage_level[3]<20 or storage_level[3]>80:
                             countOfStorageLevelsBelowOrAbove+=1
                             # add scheduler logic to change production plan
-                            # Create message for scheduler
-                            message = {
-                                'event': 'Change Production Plan',
-                                'storage_level': storage_level[3],
-                                'count': countOfStorageLevelsBelowOrAbove
-                            }
+                            message = f"Change Production Plan for {storage_level[2]} - {storage_level[1]}"
 
                             # Send message to Kafka topic
-                            producer.produce('ProductionPlan', key='Production', value='Change Production Plan')
+                            producer.produce('ProductionPlan', key='Production', value=message)
                             producer.flush(30)
                             #producer.send('ProductionPlan', value=message)
                             #producer.flush()  # Ensure message is sent
