@@ -6,3 +6,5 @@ numpy==1.21.2
 sqlalchemy
 psycopg2
 faker
+kafka-python
+confluent_kafka

@@ -4,6 +4,12 @@ import time
 from faker import Faker
 import random
 import threading
+from kafka import KafkaAdminClient
+from kafka.admin import NewTopic
+from kafka import KafkaProducer
+from confluent_kafka import Producer
+import json
+import os
 
 
 
@@ -17,6 +23,39 @@ def get_db_engine():
 
 # Initialize Faker
 fake = Faker('en_US')
+
+# Initialize the admin client
+"""
+admin_client = KafkaAdminClient(
+    bootstrap_servers='localhost:9092',  # Use the OUTSIDE listener
+    client_id='kafka'
+)
+
+# Define the new topic
+new_topic = NewTopic(
+    name='ProductionPlan',
+    num_partitions=1,
+    replication_factor=1
+)
+# Create the topic
+while True:
+    try:
+        admin_client.create_topics(new_topics=[new_topic], validate_only=False)
+        print("Topic created successfully.")
+        break
+    except Exception as e:
+        print(f"Failed to create topic: {e}")
+"""
+# Get the Kafka bootstrap server from environment variable
+
+# Initialize Kafka producer with retry logic
+producer = None
+while producer is None:
+    try:
+        producer = Producer({'bootstrap.servers': 'kafka:29092'})
+    except Exception as e:
+        print(f"Connection failed: {e}. Retrying...")
+        time.sleep(5)
 
 
 
@@ -76,6 +115,18 @@ def insertBatch():
                         if storage_level[3]<20 or storage_level[3]>80:
                             countOfStorageLevelsBelowOrAbove+=1
                             # add scheduler logic to change production plan
+                            # Create message for scheduler
+                            message = {
+                                'event': 'Change Production Plan',
+                                'storage_level': storage_level[3],
+                                'count': countOfStorageLevelsBelowOrAbove
+                            }
+
+                            # Send message to Kafka topic
+                            producer.produce('ProductionPlan', key='Production', value='Change Production Plan')
+                            producer.flush(30)
+                            #producer.send('ProductionPlan', value=message)
+                            #producer.flush()  # Ensure message is sent
                         if storage_level[3]<5:
                             new_inStock = 10  
                             new_isFresh = random.choice([True, False])  # Randomly choose between True (fresh) and False (dry)
