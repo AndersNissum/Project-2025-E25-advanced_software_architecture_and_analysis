@@ -14,14 +14,19 @@ services:
       - mynetwork
     depends_on:
       - db
-  sensor_mqtt_interface:
+  mqtt:
+    container_name: mqtt
+    image: eclipse-mosquitto:latest # MQTT image Mosquitto
+    ports:
+      - "1883:1883"  # MQTT port
+    networks:
+      - mynetwork
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_config:/mosquitto/config
     build:
       context: .
       dockerfile: Dockerfile.mqtt
-    ports:
-      - "4000:4000"
-    networks:
-      - mynetwork
     restart: always
     
   scheduler:
@@ -50,13 +55,8 @@ services:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-logs:/var/lib/zookeeper/log
   
-  mqtt:
-    image: eclipse-mosquitto:latest # MQTT image Mosquitto
-    ports:
-      - "1883:1883"  # MQTT port
-    volumes:
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_config:/mosquitto/config
+
+    
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     hostname: kafka
@@ -120,4 +120,6 @@ volumes:
   zookeeper-data:
   zookeeper-logs:
   kafka-data:
+  mosquitto_data:
+  mosquitto_config:
   

@@ -12,25 +12,27 @@ LOGGER = logging.getLogger(__name__)
 # MQTT PART
 
 # MQTT Configuration
-broker_address = "mqtt"  # Replace with your broker's address
+broker_address = "192.168.1.183"  
 port = 1883  # Default MQTT port
  
-
 # Create a new MQTT client instance
 client = mqtt.Client()
-
 # Connect to the MQTT broker
 client.connect(broker_address, port)
+        
+client.loop_start()
+
+LOGGER.info("Client connected to mqtt broker")
 
 def publish_message(message):
     topic = "ProductionPlan" 
     try:
-        # Convert the message to JSON format (if needed)
+        # Convert the message to JSON format
         json_message = json.dumps(message)
         client.publish(topic, json_message)
-        print(f"Message sent: {json_message}")
+        LOGGER.info(f"Message sent: {json_message}")
     except Exception as e:
-        print(f"Error sending message: {e}")
+        LOGGER.warning(f"Error sending message: {e}")
 
 # Sample message to be sent to cutting machines
 message_to_send = {
