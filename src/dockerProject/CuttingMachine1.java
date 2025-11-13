@@ -1,5 +1,5 @@
 package dockerProject;
 
-public class CuttingMachine {
+public class CuttingMachine1 {
     
 }

@@ -1,5 +1,5 @@
 package dockerProject;
 
-public class UpdateManager {
+public class CuttingMachine3 {
     
 }

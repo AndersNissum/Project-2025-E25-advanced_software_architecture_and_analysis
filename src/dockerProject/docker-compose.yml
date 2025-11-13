@@ -4,17 +4,27 @@ networks:
   mynetwork:
     driver: bridge
 services:
-  pasta-system:
+  db_system:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.python
     ports:
       - "8000:8000"
     networks:
       - mynetwork
     depends_on:
       - db
-
+  scheduler:
+    image: scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile.Java
+    ports:
+      - "9000:9000"
+    networks:
+      - mynetwork
+    restart: always
+    
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     hostname: zookeeper
