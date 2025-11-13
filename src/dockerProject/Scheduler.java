@@ -21,15 +21,6 @@ public class Scheduler {
     private static String topic = "ProductionPlan";
 
     public static void main(String[] args) {
-        //System.out.println("Eisai boge");
-        // Set log level to ERROR to suppress all logs below ERROR
-        // Suppress all logging
-        Logger.getLogger("org.apache.kafka").setLevel(Level.OFF);
-        Logger.getLogger("org.apache.zookeeper").setLevel(Level.OFF);
-
-        // Set the root logger level to OFF
-        Logger rootLogger = Logger.getLogger("");
-        rootLogger.setLevel(Level.OFF);
         consumeMessages();
     }
 

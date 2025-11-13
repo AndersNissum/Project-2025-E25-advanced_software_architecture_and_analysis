@@ -7,7 +7,7 @@ services:
   db_batchid_subsystem:
     build:
       context: .
-      dockerfile: Dockerfile.python
+      dockerfile: Dockerfile.dbatch
     ports:
       - "8000:8000"
     networks:
@@ -49,7 +49,14 @@ services:
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-logs:/var/lib/zookeeper/log
-
+  
+  mqtt:
+    image: eclipse-mosquitto:latest # MQTT image Mosquitto
+    ports:
+      - "1883:1883"  # MQTT port
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_config:/mosquitto/config
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     hostname: kafka
