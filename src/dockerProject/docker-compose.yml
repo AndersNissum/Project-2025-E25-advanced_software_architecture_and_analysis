@@ -4,7 +4,7 @@ networks:
   mynetwork:
     driver: bridge
 services:
-  db_system:
+  db_batchid_subsystem:
     build:
       context: .
       dockerfile: Dockerfile.python
@@ -14,6 +14,16 @@ services:
       - mynetwork
     depends_on:
       - db
+  sensor_mqtt_interface:
+    build:
+      context: .
+      dockerfile: Dockerfile.mqtt
+    ports:
+      - "4000:4000"
+    networks:
+      - mynetwork
+    restart: always
+    
   scheduler:
     image: scheduler
     build:
