@@ -118,7 +118,7 @@ def insertBatch():
                             message = f"Change Production Plan for {storage_level[2]} - {storage_level[1]}"
 
                             # Send message to Kafka topic
-                            producer.produce('ProductionPlan', key='Production', value=message)
+                            producer.produce('ProductionPlan', key='FromBatchIdAssigner', value=message)
                             producer.flush(30)
                             #producer.send('ProductionPlan', value=message)
                             #producer.flush()  # Ensure message is sent

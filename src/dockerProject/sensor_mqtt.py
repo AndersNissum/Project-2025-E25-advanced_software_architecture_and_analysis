@@ -22,6 +22,7 @@ client.connect(broker_address, port)
         
 client.loop_start()
 
+
 LOGGER.info("Client connected to mqtt broker")
 
 def publish_message(message):
@@ -35,18 +36,11 @@ def publish_message(message):
         LOGGER.warning(f"Error sending message: {e}")
 
 # Sample message to be sent to cutting machines
-message_to_send = {
-    "command": "start",  
-    "parameters": {
-        "blade_speed": 1000,
-        "cutting_depth": 5,
-        "type":"B"
-    }
-}
-
+message_to_send = "Message for cutting machines"
+#publish_message(message_to_send)
 
 # Kafka Configuration
-topic = 'ChangeMachineBlade'
+kafkatopic = 'ChangeMachineBlade'
 bootstrap_servers = ['kafka:29092']  
 
 
@@ -58,7 +52,7 @@ consumer= None
 while consumer is None:
     try:
         consumer = KafkaConsumer(
-            topic,
+            kafkatopic,
             bootstrap_servers=bootstrap_servers,
             auto_offset_reset='earliest',  # Start reading at the earliest message
             group_id='test-group',
@@ -69,7 +63,7 @@ while consumer is None:
         time.sleep(5)
 
 
-print(f"Listening for messages on topic: {topic}")
+LOGGER.info(f"Listening for messages on topic: {kafkatopic}")
 
 # Consume messages
 while True:
@@ -82,6 +76,7 @@ while True:
             if message.value is not None and len(message.value) > 0:
                 LOGGER.info(f"Consumed: key={message.key}, value={message.value}")
                 publish_message(message_to_send)
+                
             else:
                 print("Received an empty or None message.")
     except KeyboardInterrupt:

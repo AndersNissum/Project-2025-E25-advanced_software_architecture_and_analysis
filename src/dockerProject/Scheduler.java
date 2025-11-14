@@ -40,19 +40,20 @@ public class Scheduler {
             consumer.subscribe(Collections.singletonList(topic));
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-                records.forEach(record -> {
-                    System.out.printf("Consumed: key=%s, value=%s%n", record.key(), record.value());
+                // For each message the scheduler receives produce a message to topic ProductionPlan
+                ConsumerRecords<String, String> messages = consumer.poll(Duration.ofMillis(1000));
+                messages.forEach(message -> {
+                    System.out.printf("Consumed: key=%s, value=%s%n", message.key(), message.value());
                     Properties producerProps = new Properties();
                     producerProps.put("bootstrap.servers", "kafka:29092");
                     producerProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
                     producerProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
+                    
                     try (KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps)) {
                         
-                        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("ChangeMachineBlade", "Change Production Plan", "Change Blade to Cutting Machine 1");
-                        producer.send(producerRecord);
-                        System.out.println("Produced: key 1, value Change Production Plan");
+                        ProducerRecord<String, String> producerMsg = new ProducerRecord<>("ChangeMachineBlade", "Change Production Plan", "Change Blade to Cutting Machine X");
+                        producer.send(producerMsg);
+                        System.out.println(producerMsg);
                         
                     }
                 });

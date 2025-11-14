@@ -19,27 +19,50 @@ services:
     image: eclipse-mosquitto:latest # MQTT image Mosquitto
     ports:
       - "1883:1883"  # MQTT port
+      - "8883:8883"    # MQTTS (secure)
     networks:
       - mynetwork
     volumes:
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_config:/mosquitto/config
+    - /mosquitto/data:/mosquitto/data
+    - /mosquitto/config:/mosquitto/config
+    
+    restart: always
+  sensor_mqtt:
+    container_name: sensor_mqtt
+    image: sensor_mqtt
+    depends_on:
+      - mqtt
+    ports:
+      - "4500:4500"  # MQTT port
+    networks:
+      - mynetwork
     build:
       context: .
       dockerfile: Dockerfile.mqtt
-    restart: always
-    
+    restart: always  
   scheduler:
     image: scheduler
     build:
       context: .
-      dockerfile: Dockerfile.Java
+      dockerfile: Dockerfile.JavaScheduler
     ports:
       - "9000:9000"
     networks:
       - mynetwork
     restart: always
-    
+  cuttingmachine:
+    image: cuttingmachine
+    depends_on:
+      - mqtt
+    build:
+      context: .
+      dockerfile: Dockerfile.cuttingmachine
+    ports:
+      - "4000:4000"
+    networks:
+      - mynetwork
+    restart: always
+  
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     hostname: zookeeper
