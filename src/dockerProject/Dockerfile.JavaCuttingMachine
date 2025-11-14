@@ -1,0 +1,18 @@
+# Use the Eclipse Temurin base image
+FROM eclipse-temurin:11
+
+# Set the working directory
+WORKDIR /app
+
+# Copy your Java source file into the container
+COPY CuttingMachine2.java .
+
+# Download Paho MQTT client JAR
+RUN mkdir -p libs && \
+    curl -o libs/org.eclipse.paho.client.mqttv3-1.2.5.jar https://repo1.maven.org/maven2/org/eclipse/paho/org.eclipse.paho.client.mqttv3/1.2.5/org.eclipse.paho.client.mqttv3-1.2.5.jar
+
+# Compile the Java file with the MQTT library
+#RUN javac -cp "libs/*" CuttingMachine1.java
+
+# Specify the command to run the application
+CMD ["java", "-cp", "libs/*:.", "CuttingMachine2.java"]

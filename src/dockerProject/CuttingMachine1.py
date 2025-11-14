@@ -22,7 +22,7 @@ client = mqtt.Client()
 def publish_message(message):
     try:
         json_message = json.dumps(message)
-        client.publish(topic, json_message)
+        client.publish("topic", json_message)
         LOGGER.info(f"Message sent: {json_message}")
     except Exception as e:
         LOGGER.warning(f"Error sending message: {e}")
@@ -63,6 +63,6 @@ client.on_message = on_message
 
 # Connect to broker
 client.connect(broker_address, port)
-
+client.subscribe(topic)
 # Blocking loop — keeps listening
 client.loop_forever()

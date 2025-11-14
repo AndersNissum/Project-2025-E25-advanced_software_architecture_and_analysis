@@ -23,9 +23,11 @@ services:
     networks:
       - mynetwork
     volumes:
-    - /mosquitto/data:/mosquitto/data
-    - /mosquitto/config:/mosquitto/config
-    
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     restart: always
   sensor_mqtt:
     container_name: sensor_mqtt
@@ -59,6 +61,18 @@ services:
       dockerfile: Dockerfile.cuttingmachine
     ports:
       - "4000:4000"
+    networks:
+      - mynetwork
+    restart: always
+  cuttingmachine2:
+    image: cuttingmachine2
+    depends_on:
+      - mqtt
+    build:
+      context: .
+      dockerfile: Dockerfile.JavaCuttingMachine
+    ports:
+      - "4600:4600"
     networks:
       - mynetwork
     restart: always
