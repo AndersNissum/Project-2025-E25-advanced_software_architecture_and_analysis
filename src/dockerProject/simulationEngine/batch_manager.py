@@ -195,6 +195,9 @@ class BatchManager:
         
         reduction_needed = current_total - self.total_stock_target
         self.reduce_all_batches(reduction_needed)
+        
+        # Send storage level update to dashboard
+        self.send_storage_levels_to_dashboard()
     
     def get_total_stock(self):
         """
@@ -278,3 +281,50 @@ class BatchManager:
                 remaining_reduction -= reduction_amount
         
         LOGGER.debug(f"Reduced stock by {total_reduction - remaining_reduction} units to balance levels")
+    
+    def send_storage_levels_to_dashboard(self):
+        """
+        Calculate current storage levels and send to storageLevels topic.
+        """
+        try:
+            # Query totals for each combination
+            result_a_fresh = self.db.execute_query(
+                "SELECT SUM(inStock) FROM pasta_db.batches WHERE blade_type='A' AND isFresh=TRUE"
+            )
+            a_fresh = result_a_fresh.fetchone()[0] or 0
+            
+            result_a_dry = self.db.execute_query(
+                "SELECT SUM(inStock) FROM pasta_db.batches WHERE blade_type='A' AND isFresh=FALSE"
+            )
+            a_dry = result_a_dry.fetchone()[0] or 0
+            
+            result_b_fresh = self.db.execute_query(
+                "SELECT SUM(inStock) FROM pasta_db.batches WHERE blade_type='B' AND isFresh=TRUE"
+            )
+            b_fresh = result_b_fresh.fetchone()[0] or 0
+            
+            result_b_dry = self.db.execute_query(
+                "SELECT SUM(inStock) FROM pasta_db.batches WHERE blade_type='B' AND isFresh=FALSE"
+            )
+            b_dry = result_b_dry.fetchone()[0] or 0
+            
+            # Calculate percentages (max capacity per type is 100)
+            max_capacity = 100
+            a_fresh_pct = (a_fresh / max_capacity) * 100
+            a_dry_pct = (a_dry / max_capacity) * 100
+            b_fresh_pct = (b_fresh / max_capacity) * 100
+            b_dry_pct = (b_dry / max_capacity) * 100
+            
+            # Create message
+            message = {
+                "title": "StorageLevels",
+                "aFresh": round(a_fresh_pct, 2),
+                "aDry": round(a_dry_pct, 2),
+                "bFresh": round(b_fresh_pct, 2),
+                "bDry": round(b_dry_pct, 2)
+            }
+            
+            self.kafka.send_message('storageLevels', json.dumps(message))
+            LOGGER.debug(f"Sent storage levels: aFresh={a_fresh_pct:.2f}%, aDry={a_dry_pct:.2f}%, bFresh={b_fresh_pct:.2f}%, bDry={b_dry_pct:.2f}%")
+        except Exception as e:
+            LOGGER.error(f"Error sending storage levels to dashboard: {str(e)}")

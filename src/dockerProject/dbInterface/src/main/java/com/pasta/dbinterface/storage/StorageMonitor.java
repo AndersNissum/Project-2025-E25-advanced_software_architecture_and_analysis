@@ -112,7 +112,7 @@ public class StorageMonitor {
             message.put("bDry", Math.round(storageLevels.get("bDry") * 100.0) / 100.0);
 
             String jsonMessage = objectMapper.writeValueAsString(message);
-            kafkaProducer.sendMessage("storageLevels", jsonMessage);
+            kafkaProducer.sendMessage("storageAlerts", jsonMessage);
 
             LOGGER.info("Storage alert sent: aFresh={}, aDry={}, bFresh={}, bDry={}",
                     storageLevels.get("aFresh"), storageLevels.get("aDry"),

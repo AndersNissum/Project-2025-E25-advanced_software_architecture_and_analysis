@@ -52,7 +52,7 @@ Consumed from productionPlan topic to track freshAmount updates.
 
 ---
 
-### SimulationEngine (DbInterface) → storageLevels
+### SimulationEngine (DbInterface) → storageAlerts
 Sent when storage levels breach thresholds (<20% or >80%).
 
 ```json
@@ -135,7 +135,8 @@ Consumed from productionPlan topic (ChangeFreshAmount messages).
 |-------|-----------|-----------|---------|
 | `heartbeats` | CuttingMachine | Scheduler, BatchManager, KafkaMonitor | Machine health monitoring and batch creation |
 | `productionPlan` | Scheduler, SortingSubsystem | CuttingMachine, BatchManager, KafkaMonitor | Production directives, alerts, and fresh amount tracking |
-| `storageLevels` | DbInterface | Scheduler, KafkaMonitor | Storage level monitoring and alerts |
+| `storageAlerts` | DbInterface | Scheduler, KafkaMonitor | Storage alert conditions when thresholds breached |
+| `storageLevels` | BatchManager | KafkaMonitor | Dashboard display of current storage levels |
 
 ---
 
@@ -153,12 +154,18 @@ Consumed from productionPlan topic (ChangeFreshAmount messages).
 3. BatchManager balances stock to maintain total of 200
 
 ### Fresh Amount Control
-1. Scheduler receives StorageAlert from DbInterface
+1. Scheduler receives StorageAlert from DbInterface (via storageAlerts topic)
 2. If fresh/dry imbalance detected → Scheduler sends ChangeFreshAmount
 3. SortingSubsystem receives ChangeFreshAmount → updates freshAmount
 4. SortingSubsystem sends FreshAmountChanged confirmation
 5. BatchManager reads ChangeFreshAmount → updates local freshAmount
 6. Next batch production uses updated freshAmount
+
+### Storage Level Dashboard
+1. BatchManager creates batches and rebalances stock
+2. BatchManager calculates current storage levels
+3. BatchManager sends StorageLevels message to storageLevels topic
+4. Dashboard consumes messages to display real-time storage status
 
 ### Machine Failure Recovery
 1. Scheduler detects missing heartbeat (>10 seconds)

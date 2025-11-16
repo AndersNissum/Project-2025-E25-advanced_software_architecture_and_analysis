@@ -52,8 +52,8 @@ public class KafkaConsumerManager {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Arrays.asList("heartbeats", "storageLevels"));
-            LOGGER.info("Subscribed to heartbeats and storageLevels topics");
+            consumer.subscribe(Arrays.asList("heartbeats", "storageAlerts"));
+            LOGGER.info("Subscribed to heartbeats and storageAlerts topics");
 
             // Wait for initial partition assignment
             boolean assigned = false;
@@ -79,7 +79,7 @@ public class KafkaConsumerManager {
 
                         if ("heartbeats".equals(record.topic())) {
                             handleHeartbeat(json, machineManager, kafkaProducer);
-                        } else if ("storageLevels".equals(record.topic())) {
+                        } else if ("storageAlerts".equals(record.topic())) {
                             handleStorageAlert(json, machineManager, kafkaProducer, storageHandler, scheduler);
                         }
 
