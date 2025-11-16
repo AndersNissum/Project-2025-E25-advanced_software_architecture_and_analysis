@@ -75,14 +75,15 @@ class DatabaseConnection:
         Execute an insert query.
         
         Args:
-            query (str): SQL insert query as text
+            query (str or TextClause): SQL insert query as string or text object
             params (dict): Query parameters
         """
         try:
             with self.get_connection() as connection:
                 with connection.begin():
-                    connection.execute(text(query), params or {})
-                    LOGGER.info(f"Insert executed with params: {params}")
+                    if isinstance(query, str):
+                        query = text(query)
+                    connection.execute(query, params or {})
         except Exception as e:
             LOGGER.error(f"Insert error: {str(e)}")
             raise
@@ -92,14 +93,16 @@ class DatabaseConnection:
         Execute an update query.
         
         Args:
-            query (str): SQL update query as text
+            query (str or TextClause): SQL update query as string or text object
             params (dict): Query parameters
         """
         try:
             with self.get_connection() as connection:
                 with connection.begin():
-                    connection.execute(text(query), params or {})
-                    LOGGER.info(f"Update executed with params: {params}")
+                    if isinstance(query, str):
+                        query = text(query)
+                    connection.execute(query, params or {})
+                    # LOGGER.info(f"Update executed with params: {params}")
         except Exception as e:
             LOGGER.error(f"Update error: {str(e)}")
             raise

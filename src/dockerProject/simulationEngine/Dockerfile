@@ -10,14 +10,11 @@ COPY requirements.txt .
 # Install required packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire source code into the container
-COPY . .
-
-# Expose the port the app runs on
-EXPOSE 8000
+# Copy all Python files into the container
+COPY *.py ./
 
 # Set Python path to include the app directory
 ENV PYTHONPATH=/app
 
 # Command to run the application
-CMD ["python", "-m", "simulationEngine.app"]
+CMD ["python", "app.py"]

@@ -1,9 +1,9 @@
 import logging
 import threading
-from .database import DatabaseConnection
-from .kafka_producer import KafkaProducerManager
-from .batch_manager import BatchManager
-from .storage_monitor import StorageMonitor
+from database import DatabaseConnection
+from kafka_producer import KafkaProducerManager
+from batch_manager import BatchManager
+from cutting_machine import CuttingMachineSimulator
 
 # Logger setup
 logging.basicConfig(
@@ -26,40 +26,19 @@ def main():
     
     # Initialize managers
     LOGGER.info("Initializing batch manager...")
-    batch_manager = BatchManager(db, kafka)
+    batch_manager = BatchManager(db, kafka, kafka_bootstrap_servers='kafka:29092')
     
-    LOGGER.info("Initializing storage monitor...")
-    storage_monitor = StorageMonitor(db, kafka)
+    LOGGER.info("Initializing cutting machine simulator...")
+    machine_simulator = CuttingMachineSimulator(kafka, kafka_bootstrap_servers='kafka:29092', num_machines=3)
     
-    # Create threads for each task
-    LOGGER.info("Creating worker threads...")
+    # Start batch manager consumers
+    LOGGER.info("Starting batch manager consumers...")
+    batch_manager.start_production_plan_consumer()
+    batch_manager.start_heartbeat_consumer()
     
-    insert_thread = threading.Thread(
-        target=batch_manager.run_insert_cycle,
-        kwargs={'interval': 5},
-        daemon=True,
-        name='BatchInsertWorker'
-    )
-    
-    reduction_thread = threading.Thread(
-        target=batch_manager.run_reduction_cycle,
-        kwargs={'interval': 10, 'total_reduction': 20},
-        daemon=True,
-        name='BatchReductionWorker'
-    )
-    
-    monitoring_thread = threading.Thread(
-        target=storage_monitor.run_monitoring_cycle,
-        kwargs={'interval': 10},
-        daemon=True,
-        name='StorageMonitorWorker'
-    )
-    
-    # Start all threads
-    LOGGER.info("Starting worker threads...")
-    insert_thread.start()
-    reduction_thread.start()
-    monitoring_thread.start()
+    # Start cutting machines
+    LOGGER.info("Starting cutting machine simulators...")
+    machine_simulator.start_all()
     
     LOGGER.info("All worker threads started. Simulation engine running...")
     

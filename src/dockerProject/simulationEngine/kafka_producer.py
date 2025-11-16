@@ -5,6 +5,7 @@ from confluent_kafka import Producer
 # Logger setup
 LOGGER = logging.getLogger(__name__)
 
+
 class KafkaProducerManager:
     """Manages Kafka producer with connection retry logic."""
     
@@ -60,7 +61,6 @@ class KafkaProducerManager:
                 value=message.encode('utf-8') if isinstance(message, str) else message
             )
             self.producer.flush(30)  # Wait up to 30 seconds for delivery
-            LOGGER.info(f"Message sent to topic '{topic}': {message}")
             return True
         except Exception as e:
             LOGGER.error(f"Failed to send message to topic '{topic}': {str(e)}")
