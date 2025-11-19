@@ -75,7 +75,7 @@ class KafkaProducerManager:
             storage_level (float): Current storage level percentage
         """
         message = f"Change Production Plan for {product_type} - Level: {storage_level:.2f}%"
-        return self.send_message('ProductionPlan', message, key='Production')
+        return self.send_message('storageLevels', message, key='Production')
     
     def close(self):
         """Close the Kafka producer."""
