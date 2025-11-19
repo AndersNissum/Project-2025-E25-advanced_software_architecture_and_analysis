@@ -3,34 +3,51 @@ package com.pasta.scheduler;
 import com.pasta.scheduler.kafka.KafkaConsumerManager;
 import com.pasta.scheduler.kafka.KafkaProducerManager;
 import com.pasta.scheduler.machine.MachineManager;
+import com.pasta.scheduler.redis.RedisManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Scheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
     private static final int INITIAL_FRESH_AMOUNT = 4;
+    private static final String SCHEDULER_ID = "primary";
+    private static final int REDIS_PERSIST_INTERVAL_SECONDS = 5;
 
     private final MachineManager machineManager;
     private final KafkaConsumerManager kafkaConsumer;
     private final KafkaProducerManager kafkaProducer;
+    private final RedisManager redisManager;
     private int freshAmount;
     private int lastSentFreshAmount;
+    private boolean isActive = false;
 
-    public Scheduler(String kafkaBootstrapServers) {
+    public Scheduler(String kafkaBootstrapServers, String redisHost, int redisPort) {
         this.machineManager = new MachineManager();
         this.kafkaConsumer = new KafkaConsumerManager(kafkaBootstrapServers);
         this.kafkaProducer = new KafkaProducerManager(kafkaBootstrapServers);
+        this.redisManager = new RedisManager(redisHost, redisPort);
         this.freshAmount = INITIAL_FRESH_AMOUNT;
         this.lastSentFreshAmount = -1;
+
+        LOGGER.info("Scheduler initialized with Kafka: {}, Redis: {}:{}",
+                kafkaBootstrapServers, redisHost, redisPort);
     }
 
     public void start() {
         LOGGER.info("Starting Scheduler");
 
+        // Attempt leader election via Redis
+        if (!attemptLeaderElection()) {
+            LOGGER.warn("Failed to become active scheduler, but continuing as standby...");
+        }
+
+        // Load persisted state from Redis if available
+        loadStateFromRedis();
+
         // Send initial ChangeFreshAmount message
         sendChangeFreshAmountMessage(freshAmount);
 
-        // Start Kafka consumer in a separate thread (handles heartbeats, storage alerts, and health checks)
+        // Start Kafka consumer in a separate thread
         Thread consumerThread = new Thread(() -> {
             LOGGER.info("Starting Kafka consumer");
             kafkaConsumer.consumeHeartbeats(machineManager, kafkaProducer, this);
@@ -41,7 +58,6 @@ public class Scheduler {
         // Start machine health checker in a separate thread with a delay
         Thread healthCheckThread = new Thread(() -> {
             try {
-                // Wait 10 seconds for initial machines to be discovered via heartbeats
                 LOGGER.info("Waiting 10 seconds for initial machine discovery...");
                 Thread.sleep(10000);
                 LOGGER.info("Starting machine health checker");
@@ -54,7 +70,144 @@ public class Scheduler {
         healthCheckThread.setDaemon(true);
         healthCheckThread.start();
 
+        // Start Redis state persistence thread
+        Thread redisPersistThread = new Thread(() -> {
+            try {
+                LOGGER.info("Waiting before starting Redis persistence...");
+                Thread.sleep(5000);
+                LOGGER.info("Starting Redis state persistence");
+                persistStateToRedisLoop();
+            } catch (InterruptedException e) {
+                LOGGER.error("Redis persist thread interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }, "RedisPersistWorker");
+        redisPersistThread.setDaemon(true);
+        redisPersistThread.start();
+
+        // Start leader election renewal thread (only if active)
+        Thread leaderRenewalThread = new Thread(() -> {
+            try {
+                Thread.sleep(2000);  // Wait before starting renewal
+                LOGGER.info("Starting leader election renewal");
+                renewLeadershipLoop();
+            } catch (InterruptedException e) {
+                LOGGER.error("Leader renewal thread interrupted", e);
+                Thread.currentThread().interrupt();
+            }
+        }, "LeaderRenewalWorker");
+        leaderRenewalThread.setDaemon(true);
+        leaderRenewalThread.start();
+
         LOGGER.info("Scheduler started successfully with freshAmount={}", freshAmount);
+    }
+
+    private boolean attemptLeaderElection() {
+        try {
+            boolean success = redisManager.becomeActiveScheduler(SCHEDULER_ID);
+            if (success) {
+                isActive = true;
+                LOGGER.info("✅ Became ACTIVE scheduler");
+            } else {
+                isActive = false;
+                LOGGER.warn("⚠️ Another scheduler is active, running as STANDBY");
+            }
+            return success;
+        } catch (Exception e) {
+            LOGGER.error("Error during leader election: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private void renewLeadershipLoop() {
+        while (true) {
+            try {
+                Thread.sleep(3000);  // Renew every 3 seconds (lease is 5 seconds)
+
+                if (isActive) {
+                    boolean stillActive = redisManager.becomeActiveScheduler(SCHEDULER_ID);
+                    if (!stillActive) {
+                        LOGGER.warn("Lost leadership, transitioning to STANDBY");
+                        isActive = false;
+                    } else {
+                        LOGGER.debug("✓ Leadership renewed");
+                    }
+                } else {
+                    // Try to acquire leadership if we lost it
+                    boolean acquired = redisManager.becomeActiveScheduler(SCHEDULER_ID);
+                    if (acquired) {
+                        LOGGER.info("✅ Acquired leadership, transitioning to ACTIVE");
+                        isActive = true;
+                        // Reload state when becoming active
+                        loadStateFromRedis();
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error in leadership renewal: {}", e.getMessage());
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void persistStateToRedisLoop() {
+        while (true) {
+            try {
+                Thread.sleep(REDIS_PERSIST_INTERVAL_SECONDS * 1000);
+
+                if (isActive) {
+                    // Persist machine state
+                    machineManager.saveToRedis(redisManager);
+
+                    // Persist freshAmount
+                    redisManager.setFreshAmount(freshAmount);
+
+                    // Persist Kafka offsets
+                    redisManager.setKafkaOffsets(kafkaConsumer.getOffsets());
+
+                    LOGGER.debug("State persisted to Redis");
+                } else {
+                    LOGGER.debug("Standby scheduler, skipping Redis persistence");
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error persisting state to Redis: {}", e.getMessage(), e);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void loadStateFromRedis() {
+        try {
+            LOGGER.info("Loading scheduler state from Redis...");
+
+            // Load machine state
+            machineManager.loadFromRedis(redisManager);
+
+            // Load freshAmount
+            Integer savedFreshAmount = redisManager.getFreshAmount();
+            if (savedFreshAmount != null) {
+                freshAmount = savedFreshAmount;
+                lastSentFreshAmount = -1;  // Force resend
+                LOGGER.info("Loaded freshAmount from Redis: {}", freshAmount);
+            }
+
+            // Load Kafka offsets
+            kafkaConsumer.setOffsets(redisManager.getKafkaOffsets());
+
+            LOGGER.info("✓ State loaded from Redis");
+        } catch (Exception e) {
+            LOGGER.error("Error loading state from Redis: {}", e.getMessage(), e);
+            LOGGER.info("Starting with default state");
+        }
     }
 
     public synchronized void updateFreshAmount(int delta) {
@@ -72,6 +225,9 @@ public class Scheduler {
         freshAmount = newFreshAmount;
         LOGGER.info("Updated freshAmount: {} (delta: {})", freshAmount, delta);
         sendChangeFreshAmountMessage(freshAmount);
+
+        // Immediately persist to Redis
+        redisManager.setFreshAmount(freshAmount);
     }
 
     private void sendChangeFreshAmountMessage(int amount) {
@@ -94,9 +250,19 @@ public class Scheduler {
         return freshAmount;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     public static void main(String[] args) {
-        String kafkaBootstrapServers = "kafka:29092";
-        Scheduler scheduler = new Scheduler(kafkaBootstrapServers);
+        String kafkaBootstrapServers = System.getenv("KAFKA_BOOTSTRAP_SERVERS") != null ?
+                System.getenv("KAFKA_BOOTSTRAP_SERVERS") : "kafka:29092";
+        String redisHost = System.getenv("REDIS_HOST") != null ?
+                System.getenv("REDIS_HOST") : "redis";
+        int redisPort = System.getenv("REDIS_PORT") != null ?
+                Integer.parseInt(System.getenv("REDIS_PORT")) : 6379;
+
+        Scheduler scheduler = new Scheduler(kafkaBootstrapServers, redisHost, redisPort);
         scheduler.start();
 
         // Keep main thread alive

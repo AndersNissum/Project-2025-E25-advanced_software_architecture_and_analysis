@@ -3,7 +3,6 @@ import threading
 from database import DatabaseConnection
 from kafka_producer import KafkaProducerManager
 from batch_manager import BatchManager
-from cutting_machine import CuttingMachineSimulator
 
 # Logger setup
 logging.basicConfig(
@@ -28,17 +27,10 @@ def main():
     LOGGER.info("Initializing batch manager...")
     batch_manager = BatchManager(db, kafka, kafka_bootstrap_servers='kafka:29092')
     
-    LOGGER.info("Initializing cutting machine simulator...")
-    machine_simulator = CuttingMachineSimulator(kafka, kafka_bootstrap_servers='kafka:29092', num_machines=3)
-    
     # Start batch manager consumers
     LOGGER.info("Starting batch manager consumers...")
     batch_manager.start_production_plan_consumer()
     batch_manager.start_heartbeat_consumer()
-    
-    # Start cutting machines
-    LOGGER.info("Starting cutting machine simulators...")
-    machine_simulator.start_all()
     
     LOGGER.info("All worker threads started. Simulation engine running...")
     

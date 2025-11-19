@@ -34,13 +34,16 @@ def format_message(topic, message_json):
     
     # Color based on topic
     if topic == 'heartbeats':
-        color = Colors.BLUE
+        color = Colors.MAGENTA
         icon = '💓'
     elif topic == 'productionPlan':
-        color = Colors.MAGENTA
+        color = Colors.BLUE
         icon = '📋'
     elif topic == 'batches':
         color = Colors.GREEN
+        icon = '📦'
+    elif topic == 'experiment':
+        color = Colors.YELLOW
         icon = '📦'
     else:
         color = Colors.CYAN
@@ -103,7 +106,7 @@ def main():
     print(f"{Colors.RESET}")
     print(f"Monitoring topics: {Colors.BOLD}heartbeats, productionPlan{Colors.RESET}\n")
     
-    topics = ['heartbeats', 'productionPlan']
+    topics = ['heartbeats', 'productionPlan', 'batches', 'experiment']
     
     # Create a thread for each topic
     threads = []

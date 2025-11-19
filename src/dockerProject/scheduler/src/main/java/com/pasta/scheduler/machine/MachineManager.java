@@ -23,6 +23,8 @@ public class MachineManager {
     private final long startTime = System.currentTimeMillis();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private boolean needsRedisUpdate = false;
+    private final java.util.Set<Integer> assignedMachines = new java.util.HashSet<>();  // Track assigned machines
+    private final java.util.Map<Integer, Long> lastHeartbeatTime = new java.util.HashMap<>();  // Deduplicate heartbeats
 
     public boolean isDiscoveryPhaseComplete() {
         return (System.currentTimeMillis() - startTime) > DISCOVERY_PHASE_DURATION_MS;
@@ -41,32 +43,38 @@ public class MachineManager {
                 // Machine already exists, just update heartbeat
                 existingMachine.setLastHeartbeat(heartbeatTimestamp);
                 LOGGER.debug("Updated heartbeat for machine {}", machineId);
-            } else {
-                // New machine - need to assign blade type
-                BladeType bladeType;
-
-                if (bladeTypeFromHeartbeat != null) {
-                    // Machine already has a blade type (recovered from another scheduler instance)
-                    bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
-                    LOGGER.info("New machine {} found with existing blade type {}", machineId, bladeType.getValue());
-                } else {
-                    // New machine needs blade assignment
-                    bladeType = determineBladeTypeForNewMachine();
-                    LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
-
-                    // Only send AssignBlade if discovery phase is complete and machine had no blade type
-                    if (isDiscoveryPhaseComplete()) {
-                        sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
-                    } else {
-                        LOGGER.debug("Discovery phase in progress - skipping AssignBlade for machine {}", machineId);
-                    }
-                }
-
-                Machine newMachine = new Machine(machineId, bladeType);
-                newMachine.setLastHeartbeat(heartbeatTimestamp);
-                availableMachines.add(newMachine);
-                needsRedisUpdate = true;
+                return;  // Exit early - don't send assignment for existing machine
             }
+
+            // New machine - need to assign blade type
+            BladeType bladeType;
+
+            if (bladeTypeFromHeartbeat != null) {
+                // Machine already has a blade type (recovered from another scheduler instance)
+                bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
+                LOGGER.info("New machine {} found with existing blade type {}", machineId, bladeType.getValue());
+            } else {
+                // New machine needs blade assignment
+                bladeType = determineBladeTypeForNewMachine();
+                LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
+
+                // Only send AssignBlade if discovery phase is complete AND not already assigned
+                if (isDiscoveryPhaseComplete() && !assignedMachines.contains(machineId)) {
+                    assignedMachines.add(machineId);  // Mark as assigned
+                    sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
+                } else if (assignedMachines.contains(machineId)) {
+                    LOGGER.debug("Machine {} already assigned blade, skipping duplicate assignment", machineId);
+                } else {
+                    LOGGER.debug("Discovery phase in progress - delaying AssignBlade for machine {}", machineId);
+                }
+            }
+
+            Machine newMachine = new Machine(machineId, bladeType);
+            newMachine.setLastHeartbeat(heartbeatTimestamp);
+            availableMachines.add(newMachine);
+            needsRedisUpdate = true;
+            LOGGER.info("Machine {} added to available machines (state: {})", machineId,
+                    bladeTypeFromHeartbeat != null ? "WORKING" : "WAITING_FOR_ASSIGNMENT");
         }
     }
 

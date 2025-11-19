@@ -83,6 +83,11 @@ public class StorageAlertHandler {
                                     KafkaProducerManager kafkaProducer, Scheduler scheduler) {
         int delta = (totalFresh > totalDry / 2.0) ? 2 : 4;
         LOGGER.info("Handling fresh problem: increasing freshAmount by {}", delta);
+        if (isOnCooldown("freshAmount")) {
+            LOGGER.info("FreshAmount change on cooldown, skipping");
+            return;
+        }
+        recordAlert("freshAmount");
         scheduler.updateFreshAmount(delta);
     }
 
@@ -90,6 +95,11 @@ public class StorageAlertHandler {
                                   KafkaProducerManager kafkaProducer, Scheduler scheduler) {
         int delta = (totalFresh > totalDry / 2.0) ? -2 : -4;
         LOGGER.info("Handling dry problem: decreasing freshAmount by {}", Math.abs(delta));
+        if (isOnCooldown("freshAmount")) {
+            LOGGER.info("FreshAmount change on cooldown, skipping");
+            return;
+        }
+        recordAlert("freshAmount");
         scheduler.updateFreshAmount(delta);
     }
 
@@ -118,7 +128,7 @@ public class StorageAlertHandler {
     private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId,
                                       BladeType newBladeType) {
         String message = String.format(
-                "{\"title\":\"BladeSwap\",\"machineId\":%d,\"bladeType\":\"%s\"}",
+                "{\"title\":\"SwapBlade\",\"machineId\":%d,\"bladeType\":\"%s\"}",
                 machineId,
                 newBladeType.getValue()
         );
