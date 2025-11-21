@@ -55,7 +55,6 @@ public class KafkaConsumerManager {
             consumer.subscribe(Arrays.asList("heartbeats", "storageAlerts"));
             LOGGER.info("Subscribed to heartbeats and storageAlerts topics");
 
-            // Wait for initial partition assignment
             boolean assigned = false;
             int attempts = 0;
             while (!assigned && attempts < 10) {
@@ -83,7 +82,6 @@ public class KafkaConsumerManager {
                             handleStorageAlert(json, machineManager, kafkaProducer, storageHandler, scheduler);
                         }
 
-                        // Track offset for this topic and partition
                         String offsetKey = record.topic() + "-" + record.partition();
                         synchronized (offsetLock) {
                             currentOffsets.put(offsetKey, record.offset());
@@ -117,7 +115,12 @@ public class KafkaConsumerManager {
                                     KafkaProducerManager kafkaProducer,
                                     StorageAlertHandler storageHandler, Scheduler scheduler) {
         if (json.has("title") && json.get("title").asText().equals("StorageAlert")) {
-            LOGGER.info("Received storage alert");
+            // NEW: Extract alertId if present
+            String alertId = json.has("alertId") ?
+                    json.get("alertId").asText() :
+                    "unknown";
+
+            LOGGER.info("Received storage alert: {}", alertId);
             storageHandler.handleStorageAlert(json, machineManager, kafkaProducer, scheduler);
         }
     }

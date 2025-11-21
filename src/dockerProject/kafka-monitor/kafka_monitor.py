@@ -39,7 +39,7 @@ def format_message(topic, message_json):
     elif topic == 'productionPlan':
         color = Colors.BLUE
         icon = '📋'
-    elif topic == 'storageLevels':
+    elif topic == 'storageAlerts':
         color = Colors.GREEN
         icon = '📦'
     elif topic == 'experiment':

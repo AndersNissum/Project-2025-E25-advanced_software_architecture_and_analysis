@@ -24,6 +24,11 @@ public class StorageAlertHandler {
     public void handleStorageAlert(JsonNode alert, MachineManager machineManager,
                                    KafkaProducerManager kafkaProducer, Scheduler scheduler) {
         try {
+            // NEW: Extract event tracking fields
+            String alertId = alert.has("alertId") ? alert.get("alertId").asText() : "unknown";
+            long triggerTs = alert.has("triggerTs") ? alert.get("triggerTs").asLong() : System.currentTimeMillis();
+            String problemCategory = alert.has("problemCategory") ? alert.get("problemCategory").asText() : "unknown";
+
             double aFresh = alert.get("aFresh").asDouble();
             double aDry = alert.get("aDry").asDouble();
             double bFresh = alert.get("bFresh").asDouble();
@@ -35,9 +40,10 @@ public class StorageAlertHandler {
             double totalFresh = aFresh + bFresh;
             double totalDry = aDry + bDry;
 
-            LOGGER.info("Storage levels - A: {}, B: {}, Fresh: {}, Dry: {}",
+            LOGGER.info("Storage levels - A: {}, B: {}, Fresh: {}, Dry: {}, alertId: {}",
                     String.format("%.2f", totalA), String.format("%.2f", totalB),
-                    String.format("%.2f", totalFresh), String.format("%.2f", totalDry));
+                    String.format("%.2f", totalFresh), String.format("%.2f", totalDry),
+                    alertId);
 
             // Identify the problem category with lowest sum
             String problem = null;
@@ -61,17 +67,21 @@ public class StorageAlertHandler {
                 return;
             }
 
-            // React to the problem
+            // Record alert time
             recordAlert(problem);
 
+            // NEW: Create event context for tracking
+            String eventContext = String.format("storageAlert:%s:problem_%s", alertId, problem);
+            long reactionTs = System.currentTimeMillis();
+
             if ("fresh".equals(problem)) {
-                handleFreshProblem(totalFresh, totalDry, kafkaProducer, scheduler);
+                handleFreshProblem(totalFresh, totalDry, kafkaProducer, scheduler, eventContext, reactionTs);
             } else if ("dry".equals(problem)) {
-                handleDryProblem(totalFresh, totalDry, kafkaProducer, scheduler);
+                handleDryProblem(totalFresh, totalDry, kafkaProducer, scheduler, eventContext, reactionTs);
             } else if ("A".equals(problem)) {
-                handleBladeProblem("A", machineManager, kafkaProducer);
+                handleBladeProblem("A", machineManager, kafkaProducer, eventContext, reactionTs);
             } else if ("B".equals(problem)) {
-                handleBladeProblem("B", machineManager, kafkaProducer);
+                handleBladeProblem("B", machineManager, kafkaProducer, eventContext, reactionTs);
             }
 
         } catch (Exception e) {
@@ -80,34 +90,37 @@ public class StorageAlertHandler {
     }
 
     private void handleFreshProblem(double totalFresh, double totalDry,
-                                    KafkaProducerManager kafkaProducer, Scheduler scheduler) {
+                                    KafkaProducerManager kafkaProducer, Scheduler scheduler,
+                                    String eventContext, long reactionTs) {
         int delta = (totalFresh > totalDry / 2.0) ? 2 : 4;
-        LOGGER.info("Handling fresh problem: increasing freshAmount by {}", delta);
+        LOGGER.info("Handling fresh problem: increasing freshAmount by {}, eventContext: {}", delta, eventContext);
         if (isOnCooldown("freshAmount")) {
             LOGGER.info("FreshAmount change on cooldown, skipping");
             return;
         }
         recordAlert("freshAmount");
-        scheduler.updateFreshAmount(delta);
+        scheduler.updateFreshAmount(delta, eventContext, reactionTs);
     }
 
     private void handleDryProblem(double totalFresh, double totalDry,
-                                  KafkaProducerManager kafkaProducer, Scheduler scheduler) {
+                                  KafkaProducerManager kafkaProducer, Scheduler scheduler,
+                                  String eventContext, long reactionTs) {
         int delta = (totalFresh > totalDry / 2.0) ? -2 : -4;
-        LOGGER.info("Handling dry problem: decreasing freshAmount by {}", Math.abs(delta));
+        LOGGER.info("Handling dry problem: decreasing freshAmount by {}, eventContext: {}", Math.abs(delta), eventContext);
         if (isOnCooldown("freshAmount")) {
             LOGGER.info("FreshAmount change on cooldown, skipping");
             return;
         }
         recordAlert("freshAmount");
-        scheduler.updateFreshAmount(delta);
+        scheduler.updateFreshAmount(delta, eventContext, reactionTs);
     }
 
     private void handleBladeProblem(String problemBlade, MachineManager machineManager,
-                                    KafkaProducerManager kafkaProducer) {
+                                    KafkaProducerManager kafkaProducer,
+                                    String eventContext, long reactionTs) {
         BladeType targetBladeType = "A".equals(problemBlade) ? BladeType.B : BladeType.A;
-        LOGGER.info("Handling blade {} problem: looking for machine with blade {}",
-                problemBlade, targetBladeType.getValue());
+        LOGGER.info("Handling blade {} problem: looking for machine with blade {}, eventContext: {}",
+                problemBlade, targetBladeType.getValue(), eventContext);
 
         var machineToSwap = machineManager.getAvailableMachines().stream()
                 .filter(m -> m.getBladeType() == targetBladeType)
@@ -116,21 +129,28 @@ public class StorageAlertHandler {
 
         if (machineToSwap != null) {
             BladeType newBladeType = BladeType.fromString(problemBlade);
-            sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), newBladeType);
-            LOGGER.info("Sent blade swap for machine {} to blade type {}",
-                    machineToSwap.getId(), newBladeType.getValue());
+            sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), newBladeType, eventContext, reactionTs);
+            LOGGER.info("Sent blade swap for machine {} to blade type {}, eventContext: {}",
+                    machineToSwap.getId(), newBladeType.getValue(), eventContext);
         } else {
             LOGGER.warn("No available machine with blade {} to swap for problem {}",
                     targetBladeType.getValue(), problemBlade);
         }
     }
 
+    // NEW: Modified to include event context and reaction timestamp
     private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId,
-                                      BladeType newBladeType) {
+                                      BladeType newBladeType, String eventContext, long reactionTs) {
         String message = String.format(
-                "{\"title\":\"SwapBlade\",\"machineId\":%d,\"bladeType\":\"%s\"}",
+                "{\"title\":\"SwapBlade\"," +
+                        "\"machineId\":%d," +
+                        "\"bladeType\":\"%s\"," +
+                        "\"eventContext\":\"%s\"," +
+                        "\"reactionTs\":%d}",
                 machineId,
-                newBladeType.getValue()
+                newBladeType.getValue(),
+                eventContext,
+                reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
     }

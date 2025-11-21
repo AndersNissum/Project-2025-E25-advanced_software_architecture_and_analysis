@@ -210,7 +210,7 @@ public class Scheduler {
         }
     }
 
-    public synchronized void updateFreshAmount(int delta) {
+    public synchronized void updateFreshAmount(int delta, String eventContext, long reactionTs) {
         int newFreshAmount = freshAmount + delta;
 
         // Clamp freshAmount between 0 and 10
@@ -223,14 +223,14 @@ public class Scheduler {
         }
 
         freshAmount = newFreshAmount;
-        LOGGER.info("Updated freshAmount: {} (delta: {})", freshAmount, delta);
-        sendChangeFreshAmountMessage(freshAmount);
+        LOGGER.info("Updated freshAmount: {} (delta: {}, eventContext: {})", freshAmount, delta, eventContext);
+        sendChangeFreshAmountMessage(freshAmount, eventContext, reactionTs);
 
         // Immediately persist to Redis
         redisManager.setFreshAmount(freshAmount);
     }
 
-    private void sendChangeFreshAmountMessage(int amount) {
+    private void sendChangeFreshAmountMessage(int amount, String eventContext, long reactionTs) {
         // Only send if value has actually changed
         if (amount == lastSentFreshAmount) {
             LOGGER.debug("freshAmount unchanged ({}), skipping message", amount);
@@ -239,11 +239,23 @@ public class Scheduler {
 
         lastSentFreshAmount = amount;
         String message = String.format(
-                "{\"title\":\"ChangeFreshAmount\",\"freshAmount\":%d}",
-                amount
+                "{\"title\":\"ChangeFreshAmount\"," +
+                        "\"freshAmount\":%d," +
+                        "\"eventContext\":\"%s\"," +
+                        "\"reactionTs\":%d}",
+                amount,
+                eventContext,
+                reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
-        LOGGER.info("Sent ChangeFreshAmount message with freshAmount={}", amount);
+        LOGGER.info("Sent ChangeFreshAmount message with freshAmount={}, eventContext={}", amount, eventContext);
+    }
+
+    public synchronized void sendChangeFreshAmountMessage(int delta) {
+        // Use default event context for initial setup
+        String eventContext = "initialization:startup";
+        long reactionTs = System.currentTimeMillis();
+        sendChangeFreshAmountMessage(delta, eventContext, reactionTs);
     }
 
     public int getFreshAmount() {
