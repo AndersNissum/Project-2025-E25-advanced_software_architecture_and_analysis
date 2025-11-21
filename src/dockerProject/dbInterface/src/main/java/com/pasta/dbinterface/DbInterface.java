@@ -34,10 +34,15 @@ public class DbInterface {
     }
 
     public static void main(String[] args) {
+        String scenarioId = System.getenv("SCENARIO_ID") != null ?
+                System.getenv("SCENARIO_ID") : "default";
+
         String dbUrl = System.getenv("DB_URL") != null ? System.getenv("DB_URL") :
                 "jdbc:postgresql://db:5432/mydatabase?user=user&password=password";
         String kafkaBootstrapServers = System.getenv("KAFKA_BOOTSTRAP_SERVERS") != null ?
                 System.getenv("KAFKA_BOOTSTRAP_SERVERS") : "kafka:29092";
+
+        LOGGER.info("DbInterface starting with scenarioId: {}", scenarioId);
 
         DbInterface dbInterface = new DbInterface(dbUrl, kafkaBootstrapServers);
         dbInterface.start();

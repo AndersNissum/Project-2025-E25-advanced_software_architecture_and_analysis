@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,8 @@ public class MachineManager {
     private final long startTime = System.currentTimeMillis();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private boolean needsRedisUpdate = false;
-    private final java.util.Set<Integer> assignedMachines = new java.util.HashSet<>();  // Track assigned machines
-    private final java.util.Map<Integer, Long> lastHeartbeatTime = new java.util.HashMap<>();  // Deduplicate heartbeats
+    private final java.util.Set<Integer> assignedMachines = new java.util.HashSet<>();
+    private final java.util.Map<Integer, Long> lastHeartbeatTime = new java.util.HashMap<>();
 
     public boolean isDiscoveryPhaseComplete() {
         return (System.currentTimeMillis() - startTime) > DISCOVERY_PHASE_DURATION_MS;
@@ -139,21 +140,39 @@ public class MachineManager {
                             .orElse(null);
 
                     if (machineToSwap != null) {
-                        sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), failedBladeType);
+                        // NEW: Event context for machine failure
+                        String eventContext = String.format("machineFailure:machine_%d", unhealthyMachine.getId());
+                        long reactionTs = System.currentTimeMillis();
+                        sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), failedBladeType,
+                                eventContext, reactionTs);
                     }
                 }
             }
         }
     }
 
-    private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId, BladeType newBladeType) {
+    private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId,
+                                      BladeType newBladeType, String eventContext, long reactionTs) {
         String message = String.format(
-                "{\"title\":\"SwapBlade\",\"machineId\":%d,\"bladeType\":\"%s\"}",
+                "{\"title\":\"SwapBlade\"," +
+                        "\"machineId\":%d," +
+                        "\"bladeType\":\"%s\"," +
+                        "\"eventContext\":\"%s\"," +
+                        "\"reactionTs\":%d}",
                 machineId,
-                newBladeType.getValue()
+                newBladeType.getValue(),
+                eventContext,
+                reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
-        LOGGER.info("Sent blade swap command for machine {} to blade type {}", machineId, newBladeType);
+        LOGGER.info("Sent blade swap command for machine {} to blade type {}, eventContext: {}",
+                machineId, newBladeType, eventContext);
+    }
+
+    private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId, BladeType newBladeType) {
+        String eventContext = "initialization:initial_discovery";
+        long reactionTs = System.currentTimeMillis();
+        sendBladeSwapCommand(kafkaProducer, machineId, newBladeType, eventContext, reactionTs);
     }
 
     private void sendAssignBladeCommand(KafkaProducerManager kafkaProducer, int machineId, BladeType bladeType) {
@@ -168,7 +187,6 @@ public class MachineManager {
 
     public void saveToRedis(RedisManager redisManager) {
         synchronized (lock) {
-            // Only update Redis if there's been a change
             if (!needsRedisUpdate) {
                 return;
             }
@@ -191,9 +209,7 @@ public class MachineManager {
                 if (machinesJson != null && !machinesJson.isEmpty()) {
                     Machine[] machines = objectMapper.readValue(machinesJson, Machine[].class);
                     availableMachines.clear();
-                    for (Machine machine : machines) {
-                        availableMachines.add(machine);
-                    }
+                    availableMachines.addAll(Arrays.asList(machines));
                     needsRedisUpdate = false;
                     LOGGER.info("Loaded {} machines from Redis", machines.length);
                 } else {
