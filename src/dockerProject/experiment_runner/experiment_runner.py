@@ -148,6 +148,39 @@ class ExperimentRunner:
         
         LOGGER.info(f"Run {run_num} complete: {output_csv}")
 
+    def _stop_services(self):
+        """Stop all services and cleanup collector"""
+        try:
+            # Stop docker-compose
+            subprocess.run(
+                ["docker-compose", "stop"],
+                cwd=self.project_root,
+                capture_output=True,
+                timeout=60
+            )
+            
+            # CRITICAL: Stop and remove kafka-collector-temp and chaospanda-temp
+            for container in ["kafka-collector-temp", "chaospanda-temp"]:
+                try:
+                    subprocess.run(
+                        ["docker", "stop", container],
+                        capture_output=True,
+                        timeout=10
+                    )
+                    subprocess.run(
+                        ["docker", "rm", container],
+                        capture_output=True,
+                        timeout=10
+                    )
+                    LOGGER.info(f"Removed {container}")
+                except:
+                    pass  # Container might not exist
+            
+            time.sleep(2)  # Give time for cleanup
+        
+        except Exception as e:
+            LOGGER.warning(f"Error stopping services: {e}")
+
     def _cleanup_containers(self):
         """Remove old containers and volumes"""
         try:
@@ -246,6 +279,18 @@ class ExperimentRunner:
 
     def _start_chaos_panda(self, scenario: Scenario):
         """Start ChaosPanda with scenario parameters"""
+        
+        # FIX: Ensure Docker socket is accessible
+        try:
+            import os
+            docker_socket = "/var/run/docker.sock"
+            if os.path.exists(docker_socket):
+                # Try to make readable (may require sudo)
+                os.system(f"sudo chmod 666 {docker_socket} 2>/dev/null || true")
+                LOGGER.debug("Docker socket permissions adjusted")
+        except Exception as e:
+            LOGGER.warning(f"Could not adjust Docker socket permissions: {e}")
+        
         try:
             subprocess.run(
                 [
@@ -253,6 +298,7 @@ class ExperimentRunner:
                     "--name", "chaospanda-temp",
                     "--network", "dockerproject_mynetwork",
                     "-v", "/var/run/docker.sock:/var/run/docker.sock",
+                    "--user", "root",  # NEW: Run as root to access Docker socket
                     "--group-add", "0",
                     "-e", "PYTHONUNBUFFERED=1",
                     "-e", "SCENARIO_ID=" + scenario.id,
@@ -268,8 +314,10 @@ class ExperimentRunner:
                 capture_output=True,
                 timeout=10
             )
+            LOGGER.info("ChaosPanda started")
         except Exception as e:
-            LOGGER.warning(f"Could not start chaospanda: {e}")
+            LOGGER.warning(f"ChaosPanda startup warning: {e}")
+            # Don't fail - continue without chaos if it doesn't start
 
     def _wait_for_events(self, scenario: Scenario, timeout: int = 600):
         """Wait for N events or timeout"""
@@ -339,7 +387,7 @@ class ExperimentRunner:
         output_csv = self.results_dir / f"results_scenario_{scenario.id}_run{run_num}.csv"
         
         # FIX: Get the correct path to eventProcessor
-        event_processor_dir = self.project_root.parent / 'eventProcessor'
+        event_processor_dir = self.project_root / 'eventProcessor'
         
         try:
             result = subprocess.run(
