@@ -32,7 +32,7 @@ def get_all_scenarios() -> List[Scenario]:
             max_killable_machines=0,
             max_killable_schedulers=1,
             description="3 machines, no chaos (baseline)"
-        ),
+        ),"""
         Scenario(
             id="3m_1k",
             num_cutting_machines=3,
@@ -83,7 +83,7 @@ def get_all_scenarios() -> List[Scenario]:
             max_killable_machines=4,
             max_killable_schedulers=1,
             description="5 machines, max 4 killed"
-        ),
+        )"""
     ]
     
     return scenarios

@@ -1,3 +1,4 @@
+
 package com.pasta.scheduler.storage;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,53 +25,39 @@ public class StorageAlertHandler {
     public void handleStorageAlert(JsonNode alert, MachineManager machineManager,
                                    KafkaProducerManager kafkaProducer, Scheduler scheduler) {
         try {
-            // NEW: Extract event tracking fields
             String alertId = alert.has("alertId") ? alert.get("alertId").asText() : "unknown";
             long triggerTs = alert.has("triggerTs") ? alert.get("triggerTs").asLong() : System.currentTimeMillis();
             String problemCategory = alert.has("problemCategory") ? alert.get("problemCategory").asText() : "unknown";
 
             double aFresh = alert.get("aFresh").asDouble();
-            double aDry = alert.get("aDry").asDouble();
+            double aDry   = alert.get("aDry").asDouble();
             double bFresh = alert.get("bFresh").asDouble();
-            double bDry = alert.get("bDry").asDouble();
+            double bDry   = alert.get("bDry").asDouble();
 
-            // Sum levels by category
-            double totalA = aFresh + aDry;
-            double totalB = bFresh + bDry;
+            double totalA     = aFresh + aDry;
+            double totalB     = bFresh + bDry;
             double totalFresh = aFresh + bFresh;
-            double totalDry = aDry + bDry;
+            double totalDry   = aDry + bDry;
 
             LOGGER.info("Storage levels - A: {}, B: {}, Fresh: {}, Dry: {}, alertId: {}",
                     String.format("%.2f", totalA), String.format("%.2f", totalB),
-                    String.format("%.2f", totalFresh), String.format("%.2f", totalDry),
-                    alertId);
+                    String.format("%.2f", totalFresh), String.format("%.2f", totalDry), alertId);
 
-            // Identify the problem category with lowest sum
             String problem = null;
             double minValue = Math.min(Math.min(totalA, totalB), Math.min(totalFresh, totalDry));
-
-            if (totalA == minValue) {
-                problem = "A";
-            } else if (totalB == minValue) {
-                problem = "B";
-            } else if (totalFresh == minValue) {
-                problem = "fresh";
-            } else if (totalDry == minValue) {
-                problem = "dry";
-            }
+            if (totalA == minValue)      problem = "A";
+            else if (totalB == minValue) problem = "B";
+            else if (totalFresh == minValue) problem = "fresh";
+            else if (totalDry == minValue)   problem = "dry";
 
             LOGGER.info("Identified problem category: {}", problem);
 
-            // Check cooldown
             if (isOnCooldown(problem)) {
                 LOGGER.info("Problem {} is on cooldown, ignoring alert", problem);
                 return;
             }
-
-            // Record alert time
             recordAlert(problem);
 
-            // NEW: Create event context for tracking
             String eventContext = String.format("storageAlert:%s:problem_%s", alertId, problem);
             long reactionTs = System.currentTimeMillis();
 
@@ -83,7 +70,6 @@ public class StorageAlertHandler {
             } else if ("B".equals(problem)) {
                 handleBladeProblem("B", machineManager, kafkaProducer, eventContext, reactionTs);
             }
-
         } catch (Exception e) {
             LOGGER.error("Error handling storage alert: {}", e.getMessage(), e);
         }
@@ -116,8 +102,7 @@ public class StorageAlertHandler {
     }
 
     private void handleBladeProblem(String problemBlade, MachineManager machineManager,
-                                    KafkaProducerManager kafkaProducer,
-                                    String eventContext, long reactionTs) {
+                                    KafkaProducerManager kafkaProducer, String eventContext, long reactionTs) {
         BladeType targetBladeType = "A".equals(problemBlade) ? BladeType.B : BladeType.A;
         LOGGER.info("Handling blade {} problem: looking for machine with blade {}, eventContext: {}",
                 problemBlade, targetBladeType.getValue(), eventContext);
@@ -133,24 +118,15 @@ public class StorageAlertHandler {
             LOGGER.info("Sent blade swap for machine {} to blade type {}, eventContext: {}",
                     machineToSwap.getId(), newBladeType.getValue(), eventContext);
         } else {
-            LOGGER.warn("No available machine with blade {} to swap for problem {}",
-                    targetBladeType.getValue(), problemBlade);
+            LOGGER.warn("No available machine with blade {} to swap for problem {}", targetBladeType.getValue(), problemBlade);
         }
     }
 
-    // NEW: Modified to include event context and reaction timestamp
     private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId,
                                       BladeType newBladeType, String eventContext, long reactionTs) {
         String message = String.format(
-                "{\"title\":\"SwapBlade\"," +
-                        "\"machineId\":%d," +
-                        "\"bladeType\":\"%s\"," +
-                        "\"eventContext\":\"%s\"," +
-                        "\"reactionTs\":%d}",
-                machineId,
-                newBladeType.getValue(),
-                eventContext,
-                reactionTs
+                "{\"title\":\"SwapBlade\",\"machineId\":%d,\"bladeType\":\"%s\",\"eventContext\":\"%s\",\"reactionTs\":%d}",
+                machineId, newBladeType.getValue(), eventContext, reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
     }
@@ -158,9 +134,7 @@ public class StorageAlertHandler {
     private boolean isOnCooldown(String problem) {
         synchronized (lock) {
             LocalDateTime lastTimestamp = lastAlertTimestamp.get(problem);
-            if (lastTimestamp == null) {
-                return false;
-            }
+            if (lastTimestamp == null) return false;
             LocalDateTime cooldownEnd = lastTimestamp.plusSeconds(COOLDOWN_SECONDS);
             return LocalDateTime.now().isBefore(cooldownEnd);
         }

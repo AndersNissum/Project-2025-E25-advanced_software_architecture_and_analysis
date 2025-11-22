@@ -1,0 +1,333 @@
+{"topic": "productionPlan", "offset": 0, "partition": 0, "collected_at": 1763828024064, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828001257}}
+{"topic": "productionPlan", "offset": 0, "partition": 1, "collected_at": 1763828024065, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828001275}}
+{"topic": "productionPlan", "offset": 1, "partition": 0, "collected_at": 1763828025398, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 2, "partition": 0, "collected_at": 1763828025419, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 1, "partition": 1, "collected_at": 1763828025440, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 2, "partition": 1, "collected_at": 1763828051890, "message": {"title": "SwapBlade", "machineId": 1, "bladeType": "B", "eventContext": "machineFailure:machine_0", "reactionTs": 1763828051874}}
+{"topic": "productionPlan", "offset": 0, "partition": 3, "collected_at": 1763828053905, "message": {"title": "BladeSwapped", "machineId": 1, "timestamp": 1763828053894, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 1, "partition": 3, "collected_at": 1763828082013, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828081760}}
+{"topic": "productionPlan", "offset": 2, "partition": 3, "collected_at": 1763828082054, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 0, "partition": 4, "collected_at": 1763828102229, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828102040}}
+{"topic": "productionPlan", "offset": 3, "partition": 3, "collected_at": 1763828102233, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 3, "partition": 1, "collected_at": 1763828127948, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828127766}}
+{"topic": "productionPlan", "offset": 4, "partition": 3, "collected_at": 1763828127953, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 5, "partition": 3, "collected_at": 1763828158379, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828158173}}
+{"topic": "productionPlan", "offset": 6, "partition": 3, "collected_at": 1763828158385, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 4, "partition": 1, "collected_at": 1763828170925, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 7, "partition": 3, "collected_at": 1763828170928, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 8, "partition": 3, "collected_at": 1763828183389, "message": {"title": "SwapBlade", "machineId": 0, "bladeType": "B", "eventContext": "machineFailure:machine_1", "reactionTs": 1763828183385}}
+{"topic": "productionPlan", "offset": 9, "partition": 3, "collected_at": 1763828185398, "message": {"title": "BladeSwapped", "machineId": 0, "timestamp": 1763828185391, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 3, "partition": 0, "collected_at": 1763828193604, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828193421}}
+{"topic": "productionPlan", "offset": 10, "partition": 3, "collected_at": 1763828193608, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 4, "partition": 0, "collected_at": 1763828218426, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 11, "partition": 3, "collected_at": 1763828229563, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828229366}}
+{"topic": "productionPlan", "offset": 12, "partition": 3, "collected_at": 1763828229568, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 0, "partition": 2, "collected_at": 1763828264787, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828264579}}
+{"topic": "productionPlan", "offset": 13, "partition": 3, "collected_at": 1763828264790, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 1, "partition": 2, "collected_at": 1763828295333, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828295150}}
+{"topic": "productionPlan", "offset": 14, "partition": 3, "collected_at": 1763828295336, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 5, "partition": 1, "collected_at": 1763828330951, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828330742}}
+{"topic": "productionPlan", "offset": 15, "partition": 3, "collected_at": 1763828330955, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 2, "partition": 2, "collected_at": 1763828356283, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828356099}}
+{"topic": "productionPlan", "offset": 16, "partition": 3, "collected_at": 1763828356288, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 5, "partition": 0, "collected_at": 1763828381816, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828381618}}
+{"topic": "productionPlan", "offset": 17, "partition": 3, "collected_at": 1763828381820, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 18, "partition": 3, "collected_at": 1763828422293, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828422097}}
+{"topic": "productionPlan", "offset": 19, "partition": 3, "collected_at": 1763828422297, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 20, "partition": 3, "collected_at": 1763828487916, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 21, "partition": 3, "collected_at": 1763828487917, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 1, "partition": 4, "collected_at": 1763828488176, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828487987}}
+{"topic": "productionPlan", "offset": 22, "partition": 3, "collected_at": 1763828488179, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 23, "partition": 3, "collected_at": 1763828502264, "message": {"title": "SwapBlade", "machineId": 1, "bladeType": "B", "eventContext": "machineFailure:machine_0", "reactionTs": 1763828502261}}
+{"topic": "productionPlan", "offset": 6, "partition": 0, "collected_at": 1763828504271, "message": {"title": "BladeSwapped", "machineId": 1, "timestamp": 1763828504266, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 24, "partition": 3, "collected_at": 1763828513596, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828513391}}
+{"topic": "productionPlan", "offset": 25, "partition": 3, "collected_at": 1763828513599, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 26, "partition": 3, "collected_at": 1763828514262, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 6, "partition": 1, "collected_at": 1763828533889, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828533677}}
+{"topic": "productionPlan", "offset": 27, "partition": 3, "collected_at": 1763828533893, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 28, "partition": 3, "collected_at": 1763828536881, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 7, "partition": 1, "collected_at": 1763828548858, "message": {"title": "SwapBlade", "machineId": 0, "bladeType": "A", "eventContext": "machineFailure:machine_2", "reactionTs": 1763828548855}}
+{"topic": "productionPlan", "offset": 8, "partition": 1, "collected_at": 1763828560365, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 3, "partition": 2, "collected_at": 1763828569250, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828569112}}
+{"topic": "productionPlan", "offset": 29, "partition": 3, "collected_at": 1763828569254, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 30, "partition": 3, "collected_at": 1763828599670, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828599525}}
+{"topic": "productionPlan", "offset": 31, "partition": 3, "collected_at": 1763828599673, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 2, "partition": 4, "collected_at": 1763828645155, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828645004}}
+{"topic": "productionPlan", "offset": 32, "partition": 3, "collected_at": 1763828645158, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 4, "partition": 2, "collected_at": 1763828662087, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 3, "partition": 4, "collected_at": 1763828685616, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828685469}}
+{"topic": "productionPlan", "offset": 33, "partition": 3, "collected_at": 1763828685619, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 5, "partition": 2, "collected_at": 1763828686693, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 34, "partition": 3, "collected_at": 1763828726161, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828725986}}
+{"topic": "productionPlan", "offset": 35, "partition": 3, "collected_at": 1763828726165, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 4, "partition": 4, "collected_at": 1763828751568, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 36, "partition": 3, "collected_at": 1763828756410, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828756247}}
+{"topic": "productionPlan", "offset": 37, "partition": 3, "collected_at": 1763828756414, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 5, "partition": 4, "collected_at": 1763828786894, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828786736}}
+{"topic": "productionPlan", "offset": 38, "partition": 3, "collected_at": 1763828786897, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 6, "partition": 4, "collected_at": 1763828817438, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828817276}}
+{"topic": "productionPlan", "offset": 39, "partition": 3, "collected_at": 1763828817443, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 7, "partition": 4, "collected_at": 1763828852799, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828852639}}
+{"topic": "productionPlan", "offset": 40, "partition": 3, "collected_at": 1763828852803, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 8, "partition": 4, "collected_at": 1763828863061, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 9, "partition": 4, "collected_at": 1763828863067, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 7, "partition": 0, "collected_at": 1763828893004, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828892865}}
+{"topic": "productionPlan", "offset": 41, "partition": 3, "collected_at": 1763828893007, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 42, "partition": 3, "collected_at": 1763828918434, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763828918284}}
+{"topic": "productionPlan", "offset": 43, "partition": 3, "collected_at": 1763828918442, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 8, "partition": 0, "collected_at": 1763828938066, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 44, "partition": 3, "collected_at": 1763828938072, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 9, "partition": 0, "collected_at": 1763828938073, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "storageAlert:7d2ed9c3-f397-4b07-b5c2-e2fa1b10aecd:problem_fresh", "reactionTs": 1763828938065}}
+{"topic": "productionPlan", "offset": 45, "partition": 3, "collected_at": 1763828938674, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763828938526}}
+{"topic": "productionPlan", "offset": 46, "partition": 3, "collected_at": 1763828938678, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 9, "partition": 1, "collected_at": 1763828969154, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763828969010}}
+{"topic": "productionPlan", "offset": 47, "partition": 3, "collected_at": 1763828969158, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 6, "partition": 2, "collected_at": 1763829009636, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829009464}}
+{"topic": "productionPlan", "offset": 48, "partition": 3, "collected_at": 1763829009642, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 7, "partition": 2, "collected_at": 1763829028583, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 10, "partition": 0, "collected_at": 1763829040054, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829039902}}
+{"topic": "productionPlan", "offset": 49, "partition": 3, "collected_at": 1763829040057, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 8, "partition": 2, "collected_at": 1763829041142, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 10, "partition": 1, "collected_at": 1763829060275, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829060114}}
+{"topic": "productionPlan", "offset": 50, "partition": 3, "collected_at": 1763829060275, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 10, "partition": 4, "collected_at": 1763829095705, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829095554}}
+{"topic": "productionPlan", "offset": 51, "partition": 3, "collected_at": 1763829095708, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 11, "partition": 4, "collected_at": 1763829116151, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829116000}}
+{"topic": "productionPlan", "offset": 52, "partition": 3, "collected_at": 1763829116154, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 9, "partition": 2, "collected_at": 1763829151667, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829151512}}
+{"topic": "productionPlan", "offset": 53, "partition": 3, "collected_at": 1763829151671, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 11, "partition": 1, "collected_at": 1763829186792, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829186652}}
+{"topic": "productionPlan", "offset": 54, "partition": 3, "collected_at": 1763829186795, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 10, "partition": 2, "collected_at": 1763829207328, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829207175}}
+{"topic": "productionPlan", "offset": 55, "partition": 3, "collected_at": 1763829207331, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 11, "partition": 2, "collected_at": 1763829237731, "message": {"title": "ChangeFreshAmount", "freshAmount": 8, "eventContext": "initialization:startup", "reactionTs": 1763829237583}}
+{"topic": "productionPlan", "offset": 56, "partition": 3, "collected_at": 1763829237748, "message": {"title": "FreshAmountChanged", "freshAmount": 8}}
+{"topic": "productionPlan", "offset": 12, "partition": 2, "collected_at": 1763829238201, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 13, "partition": 2, "collected_at": 1763829238208, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "storageAlert:31bbb5c4-3512-499f-992b-14c79c4333c4:problem_dry", "reactionTs": 1763829238205}}
+{"topic": "productionPlan", "offset": 14, "partition": 2, "collected_at": 1763829238210, "message": {"title": "SwapBlade", "machineId": 2, "bladeType": "B", "eventContext": "storageAlert:bc6f0e94-fc9f-49fd-abb7-da4a24fe84bd:problem_B", "reactionTs": 1763829238206}}
+{"topic": "productionPlan", "offset": 57, "partition": 3, "collected_at": 1763829238212, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 11, "partition": 0, "collected_at": 1763829240216, "message": {"title": "BladeSwapped", "machineId": 2, "timestamp": 1763829240213, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 12, "partition": 0, "collected_at": 1763829283216, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829283060}}
+{"topic": "productionPlan", "offset": 58, "partition": 3, "collected_at": 1763829283219, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 15, "partition": 2, "collected_at": 1763829323720, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829323530}}
+{"topic": "productionPlan", "offset": 59, "partition": 3, "collected_at": 1763829323723, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 13, "partition": 0, "collected_at": 1763829328189, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 14, "partition": 0, "collected_at": 1763829328193, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 60, "partition": 3, "collected_at": 1763829354103, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829353958}}
+{"topic": "productionPlan", "offset": 61, "partition": 3, "collected_at": 1763829354107, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 15, "partition": 0, "collected_at": 1763829374627, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829374485}}
+{"topic": "productionPlan", "offset": 62, "partition": 3, "collected_at": 1763829374631, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 16, "partition": 2, "collected_at": 1763829415155, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829414985}}
+{"topic": "productionPlan", "offset": 63, "partition": 3, "collected_at": 1763829415161, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 16, "partition": 0, "collected_at": 1763829450585, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829450430}}
+{"topic": "productionPlan", "offset": 64, "partition": 3, "collected_at": 1763829450590, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 17, "partition": 0, "collected_at": 1763829476065, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829475906}}
+{"topic": "productionPlan", "offset": 65, "partition": 3, "collected_at": 1763829476068, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 18, "partition": 0, "collected_at": 1763829493956, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 19, "partition": 0, "collected_at": 1763829493960, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 20, "partition": 0, "collected_at": 1763829527140, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 12, "partition": 1, "collected_at": 1763829531575, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829531420}}
+{"topic": "productionPlan", "offset": 66, "partition": 3, "collected_at": 1763829531580, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 13, "partition": 1, "collected_at": 1763829543316, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 21, "partition": 0, "collected_at": 1763829543784, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 22, "partition": 0, "collected_at": 1763829543785, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 23, "partition": 0, "collected_at": 1763829543790, "message": {"title": "SwapBlade", "machineId": 1, "bladeType": "B", "eventContext": "storageAlert:d3126ab5-3f42-412b-a875-ed205a013857:problem_B", "reactionTs": 1763829543787}}
+{"topic": "productionPlan", "offset": 67, "partition": 3, "collected_at": 1763829545794, "message": {"title": "BladeSwapped", "machineId": 1, "timestamp": 1763829545791, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 24, "partition": 0, "collected_at": 1763829572091, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829571935}}
+{"topic": "productionPlan", "offset": 68, "partition": 3, "collected_at": 1763829572095, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 69, "partition": 3, "collected_at": 1763829617502, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829617348}}
+{"topic": "productionPlan", "offset": 70, "partition": 3, "collected_at": 1763829617504, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 12, "partition": 4, "collected_at": 1763829637753, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829637603}}
+{"topic": "productionPlan", "offset": 71, "partition": 3, "collected_at": 1763829637755, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 17, "partition": 2, "collected_at": 1763829678266, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829678126}}
+{"topic": "productionPlan", "offset": 72, "partition": 3, "collected_at": 1763829678270, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 13, "partition": 4, "collected_at": 1763829681333, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 14, "partition": 4, "collected_at": 1763829681336, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 73, "partition": 3, "collected_at": 1763829728910, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829728759}}
+{"topic": "productionPlan", "offset": 74, "partition": 3, "collected_at": 1763829728914, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 14, "partition": 1, "collected_at": 1763829764424, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829764270}}
+{"topic": "productionPlan", "offset": 75, "partition": 3, "collected_at": 1763829764427, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 76, "partition": 3, "collected_at": 1763829786837, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 77, "partition": 3, "collected_at": 1763829786840, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 18, "partition": 2, "collected_at": 1763829804942, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829804781}}
+{"topic": "productionPlan", "offset": 78, "partition": 3, "collected_at": 1763829804946, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 79, "partition": 3, "collected_at": 1763829831795, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 25, "partition": 0, "collected_at": 1763829850393, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829850246}}
+{"topic": "productionPlan", "offset": 80, "partition": 3, "collected_at": 1763829850397, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 19, "partition": 2, "collected_at": 1763829895668, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829895519}}
+{"topic": "productionPlan", "offset": 81, "partition": 3, "collected_at": 1763829895671, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 26, "partition": 0, "collected_at": 1763829911034, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829910880}}
+{"topic": "productionPlan", "offset": 82, "partition": 3, "collected_at": 1763829911036, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 83, "partition": 3, "collected_at": 1763829936273, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829936130}}
+{"topic": "productionPlan", "offset": 84, "partition": 3, "collected_at": 1763829936276, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 15, "partition": 4, "collected_at": 1763829986946, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763829986800}}
+{"topic": "productionPlan", "offset": 85, "partition": 3, "collected_at": 1763829986949, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 15, "partition": 1, "collected_at": 1763830032547, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830032357}}
+{"topic": "productionPlan", "offset": 86, "partition": 3, "collected_at": 1763830032550, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 16, "partition": 4, "collected_at": 1763830061894, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 17, "partition": 4, "collected_at": 1763830061900, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 27, "partition": 0, "collected_at": 1763830062966, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830062824}}
+{"topic": "productionPlan", "offset": 87, "partition": 3, "collected_at": 1763830062969, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 28, "partition": 0, "collected_at": 1763830088302, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830088148}}
+{"topic": "productionPlan", "offset": 88, "partition": 3, "collected_at": 1763830088305, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 29, "partition": 0, "collected_at": 1763830108723, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830108547}}
+{"topic": "productionPlan", "offset": 89, "partition": 3, "collected_at": 1763830108727, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 20, "partition": 2, "collected_at": 1763830144187, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830144044}}
+{"topic": "productionPlan", "offset": 90, "partition": 3, "collected_at": 1763830144191, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 30, "partition": 0, "collected_at": 1763830151403, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 31, "partition": 0, "collected_at": 1763830156753, "message": {"title": "SwapBlade", "machineId": 1, "bladeType": "B", "eventContext": "storageAlert:6865b20a-6686-474a-ac4a-a841ef798d61:problem_B", "reactionTs": 1763830156751}}
+{"topic": "productionPlan", "offset": 21, "partition": 2, "collected_at": 1763830158758, "message": {"title": "BladeSwapped", "machineId": 1, "timestamp": 1763830158755, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 22, "partition": 2, "collected_at": 1763830179391, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830179245}}
+{"topic": "productionPlan", "offset": 91, "partition": 3, "collected_at": 1763830179395, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 23, "partition": 2, "collected_at": 1763830199398, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 24, "partition": 2, "collected_at": 1763830210953, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 18, "partition": 4, "collected_at": 1763830214934, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830214762}}
+{"topic": "productionPlan", "offset": 92, "partition": 3, "collected_at": 1763830214937, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 16, "partition": 1, "collected_at": 1763830245473, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830245290}}
+{"topic": "productionPlan", "offset": 93, "partition": 3, "collected_at": 1763830245478, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 19, "partition": 4, "collected_at": 1763830280875, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830280715}}
+{"topic": "productionPlan", "offset": 94, "partition": 3, "collected_at": 1763830280878, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 17, "partition": 1, "collected_at": 1763830296097, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830295947}}
+{"topic": "productionPlan", "offset": 95, "partition": 3, "collected_at": 1763830296100, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 18, "partition": 1, "collected_at": 1763830316550, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830316407}}
+{"topic": "productionPlan", "offset": 96, "partition": 3, "collected_at": 1763830316553, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 19, "partition": 1, "collected_at": 1763830341766, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830341620}}
+{"topic": "productionPlan", "offset": 97, "partition": 3, "collected_at": 1763830341769, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 98, "partition": 3, "collected_at": 1763830397549, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830397394}}
+{"topic": "productionPlan", "offset": 99, "partition": 3, "collected_at": 1763830397552, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 100, "partition": 3, "collected_at": 1763830416477, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 101, "partition": 3, "collected_at": 1763830424062, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 25, "partition": 2, "collected_at": 1763830443214, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830443061}}
+{"topic": "productionPlan", "offset": 102, "partition": 3, "collected_at": 1763830443217, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 103, "partition": 3, "collected_at": 1763830444265, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 20, "partition": 1, "collected_at": 1763830473708, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830473560}}
+{"topic": "productionPlan", "offset": 104, "partition": 3, "collected_at": 1763830473711, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 105, "partition": 3, "collected_at": 1763830504110, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830503929}}
+{"topic": "productionPlan", "offset": 106, "partition": 3, "collected_at": 1763830504114, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 21, "partition": 1, "collected_at": 1763830524324, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830524168}}
+{"topic": "productionPlan", "offset": 107, "partition": 3, "collected_at": 1763830524329, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 108, "partition": 3, "collected_at": 1763830559762, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830559615}}
+{"topic": "productionPlan", "offset": 109, "partition": 3, "collected_at": 1763830559767, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 110, "partition": 3, "collected_at": 1763830578480, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 111, "partition": 3, "collected_at": 1763830578488, "message": {"title": "SwapBlade", "machineId": 1, "bladeType": "B", "eventContext": "storageAlert:a327340d-47b2-4071-9ef1-05d796a5510e:problem_B", "reactionTs": 1763830578484}}
+{"topic": "productionPlan", "offset": 112, "partition": 3, "collected_at": 1763830578491, "message": {"title": "SwapBlade", "machineId": 0, "bladeType": "A", "eventContext": "storageAlert:ca7cea6b-ce6b-4a3c-bd33-05d5823b958d:problem_A", "reactionTs": 1763830578485}}
+{"topic": "productionPlan", "offset": 26, "partition": 2, "collected_at": 1763830580497, "message": {"title": "BladeSwapped", "machineId": 0, "timestamp": 1763830580491, "oldBladeType": null, "newBladeType": "A"}}
+{"topic": "productionPlan", "offset": 27, "partition": 2, "collected_at": 1763830580502, "message": {"title": "BladeSwapped", "machineId": 1, "timestamp": 1763830580491, "oldBladeType": null, "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 20, "partition": 4, "collected_at": 1763830585296, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830585138}}
+{"topic": "productionPlan", "offset": 113, "partition": 3, "collected_at": 1763830585300, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 114, "partition": 3, "collected_at": 1763830585852, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 115, "partition": 3, "collected_at": 1763830586305, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 22, "partition": 1, "collected_at": 1763830610467, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830610319}}
+{"topic": "productionPlan", "offset": 116, "partition": 3, "collected_at": 1763830610472, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 23, "partition": 1, "collected_at": 1763830623470, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 117, "partition": 3, "collected_at": 1763830624058, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 118, "partition": 3, "collected_at": 1763830647234, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 119, "partition": 3, "collected_at": 1763830651173, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830651017}}
+{"topic": "productionPlan", "offset": 120, "partition": 3, "collected_at": 1763830651176, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 121, "partition": 3, "collected_at": 1763830671940, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 122, "partition": 3, "collected_at": 1763830671942, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 21, "partition": 4, "collected_at": 1763830676379, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830676235}}
+{"topic": "productionPlan", "offset": 123, "partition": 3, "collected_at": 1763830676382, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 24, "partition": 1, "collected_at": 1763830706878, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830706732}}
+{"topic": "productionPlan", "offset": 124, "partition": 3, "collected_at": 1763830706881, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 22, "partition": 4, "collected_at": 1763830737316, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830737165}}
+{"topic": "productionPlan", "offset": 125, "partition": 3, "collected_at": 1763830737318, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 25, "partition": 1, "collected_at": 1763830772819, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830772661}}
+{"topic": "productionPlan", "offset": 126, "partition": 3, "collected_at": 1763830772822, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 28, "partition": 2, "collected_at": 1763830798331, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830798160}}
+{"topic": "productionPlan", "offset": 127, "partition": 3, "collected_at": 1763830798335, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 128, "partition": 3, "collected_at": 1763830828814, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830828655}}
+{"topic": "productionPlan", "offset": 129, "partition": 3, "collected_at": 1763830828818, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 32, "partition": 0, "collected_at": 1763830854245, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830854104}}
+{"topic": "productionPlan", "offset": 130, "partition": 3, "collected_at": 1763830854249, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 33, "partition": 0, "collected_at": 1763830889801, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830889646}}
+{"topic": "productionPlan", "offset": 131, "partition": 3, "collected_at": 1763830889804, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 23, "partition": 4, "collected_at": 1763830935282, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830935125}}
+{"topic": "productionPlan", "offset": 132, "partition": 3, "collected_at": 1763830935285, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 34, "partition": 0, "collected_at": 1763830955602, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830955465}}
+{"topic": "productionPlan", "offset": 133, "partition": 3, "collected_at": 1763830955606, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 24, "partition": 4, "collected_at": 1763830972097, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 25, "partition": 4, "collected_at": 1763830972100, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 134, "partition": 3, "collected_at": 1763830996048, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763830995896}}
+{"topic": "productionPlan", "offset": 135, "partition": 3, "collected_at": 1763830996052, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 26, "partition": 4, "collected_at": 1763830997155, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 27, "partition": 4, "collected_at": 1763831017060, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 28, "partition": 4, "collected_at": 1763831017062, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 136, "partition": 3, "collected_at": 1763831031299, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831031163}}
+{"topic": "productionPlan", "offset": 137, "partition": 3, "collected_at": 1763831031302, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 29, "partition": 4, "collected_at": 1763831062057, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 35, "partition": 0, "collected_at": 1763831066766, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831066623}}
+{"topic": "productionPlan", "offset": 138, "partition": 3, "collected_at": 1763831066769, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 139, "partition": 3, "collected_at": 1763831097229, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831097086}}
+{"topic": "productionPlan", "offset": 140, "partition": 3, "collected_at": 1763831097232, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 141, "partition": 3, "collected_at": 1763831127711, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831127564}}
+{"topic": "productionPlan", "offset": 142, "partition": 3, "collected_at": 1763831127715, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 29, "partition": 2, "collected_at": 1763831157843, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831157705}}
+{"topic": "productionPlan", "offset": 143, "partition": 3, "collected_at": 1763831157847, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 26, "partition": 1, "collected_at": 1763831193335, "message": {"title": "ChangeFreshAmount", "freshAmount": 6, "eventContext": "initialization:startup", "reactionTs": 1763831193185}}
+{"topic": "productionPlan", "offset": 144, "partition": 3, "collected_at": 1763831193338, "message": {"title": "FreshAmountChanged", "freshAmount": 6}}
+{"topic": "productionPlan", "offset": 30, "partition": 2, "collected_at": 1763831196621, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "storageAlert:95c51b83-6577-4d1d-bd3d-9f111a4a1fc4:problem_dry", "reactionTs": 1763831196619}}
+{"topic": "productionPlan", "offset": 145, "partition": 3, "collected_at": 1763831196624, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 31, "partition": 2, "collected_at": 1763831196627, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 32, "partition": 2, "collected_at": 1763831223756, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 146, "partition": 3, "collected_at": 1763831233824, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831233668}}
+{"topic": "productionPlan", "offset": 147, "partition": 3, "collected_at": 1763831233826, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 27, "partition": 1, "collected_at": 1763831269335, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831269166}}
+{"topic": "productionPlan", "offset": 148, "partition": 3, "collected_at": 1763831269338, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 28, "partition": 1, "collected_at": 1763831290125, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 29, "partition": 1, "collected_at": 1763831290127, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 33, "partition": 2, "collected_at": 1763831299696, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831299552}}
+{"topic": "productionPlan", "offset": 149, "partition": 3, "collected_at": 1763831299699, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 30, "partition": 1, "collected_at": 1763831319986, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831319850}}
+{"topic": "productionPlan", "offset": 150, "partition": 3, "collected_at": 1763831319988, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 30, "partition": 4, "collected_at": 1763831350446, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831350304}}
+{"topic": "productionPlan", "offset": 151, "partition": 3, "collected_at": 1763831350448, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 34, "partition": 2, "collected_at": 1763831379617, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 35, "partition": 2, "collected_at": 1763831379619, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 36, "partition": 2, "collected_at": 1763831379627, "message": {"title": "SwapBlade", "machineId": 2, "bladeType": "A", "eventContext": "storageAlert:2c457a8a-c4dc-4d22-92a1-a446f8ac12d9:problem_A", "reactionTs": 1763831379623}}
+{"topic": "productionPlan", "offset": 36, "partition": 0, "collected_at": 1763831380949, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831380794}}
+{"topic": "productionPlan", "offset": 152, "partition": 3, "collected_at": 1763831380952, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 37, "partition": 0, "collected_at": 1763831381634, "message": {"title": "BladeSwapped", "machineId": 2, "timestamp": 1763831381629, "oldBladeType": "B", "newBladeType": "A"}}
+{"topic": "productionPlan", "offset": 38, "partition": 0, "collected_at": 1763831426437, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831426274}}
+{"topic": "productionPlan", "offset": 153, "partition": 3, "collected_at": 1763831426441, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 31, "partition": 4, "collected_at": 1763831451638, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831451469}}
+{"topic": "productionPlan", "offset": 154, "partition": 3, "collected_at": 1763831451642, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 37, "partition": 2, "collected_at": 1763831472095, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831471934}}
+{"topic": "productionPlan", "offset": 155, "partition": 3, "collected_at": 1763831472098, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 39, "partition": 0, "collected_at": 1763831502530, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831502380}}
+{"topic": "productionPlan", "offset": 156, "partition": 3, "collected_at": 1763831502533, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 31, "partition": 1, "collected_at": 1763831542973, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831542828}}
+{"topic": "productionPlan", "offset": 157, "partition": 3, "collected_at": 1763831542975, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 32, "partition": 1, "collected_at": 1763831559622, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 33, "partition": 1, "collected_at": 1763831562485, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 34, "partition": 1, "collected_at": 1763831568614, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 158, "partition": 3, "collected_at": 1763831578401, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831578251}}
+{"topic": "productionPlan", "offset": 159, "partition": 3, "collected_at": 1763831578403, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 40, "partition": 0, "collected_at": 1763831613940, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831613789}}
+{"topic": "productionPlan", "offset": 160, "partition": 3, "collected_at": 1763831613943, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 38, "partition": 2, "collected_at": 1763831634371, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831634224}}
+{"topic": "productionPlan", "offset": 161, "partition": 3, "collected_at": 1763831634375, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 41, "partition": 0, "collected_at": 1763831649611, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 162, "partition": 3, "collected_at": 1763831674857, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831674695}}
+{"topic": "productionPlan", "offset": 163, "partition": 3, "collected_at": 1763831674860, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 42, "partition": 0, "collected_at": 1763831695093, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 43, "partition": 0, "collected_at": 1763831700784, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 44, "partition": 0, "collected_at": 1763831706362, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 39, "partition": 2, "collected_at": 1763831710315, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831710163}}
+{"topic": "productionPlan", "offset": 164, "partition": 3, "collected_at": 1763831710319, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 32, "partition": 4, "collected_at": 1763831735580, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831735427}}
+{"topic": "productionPlan", "offset": 165, "partition": 3, "collected_at": 1763831735583, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 45, "partition": 0, "collected_at": 1763831747072, "message": {"title": "AssignBlade", "machineId": 0, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 46, "partition": 0, "collected_at": 1763831784589, "message": {"title": "AssignBlade", "machineId": 1, "bladeType": "B"}}
+{"topic": "productionPlan", "offset": 47, "partition": 0, "collected_at": 1763831784595, "message": {"title": "SwapBlade", "machineId": 0, "bladeType": "B", "eventContext": "storageAlert:8f059c17-4a63-43a6-98bd-4db10b897874:problem_B", "reactionTs": 1763831784593}}
+{"topic": "productionPlan", "offset": 166, "partition": 3, "collected_at": 1763831786437, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831786291}}
+{"topic": "productionPlan", "offset": 167, "partition": 3, "collected_at": 1763831786440, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 48, "partition": 0, "collected_at": 1763831786600, "message": {"title": "BladeSwapped", "machineId": 0, "timestamp": 1763831786597, "oldBladeType": "A", "newBladeType": "B"}}
+{"topic": "productionPlan", "offset": 168, "partition": 3, "collected_at": 1763831802525, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 169, "partition": 3, "collected_at": 1763831826730, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831826568}}
+{"topic": "productionPlan", "offset": 170, "partition": 3, "collected_at": 1763831826732, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 33, "partition": 4, "collected_at": 1763831862246, "message": {"title": "ChangeFreshAmount", "freshAmount": 4, "eventContext": "initialization:startup", "reactionTs": 1763831862100}}
+{"topic": "productionPlan", "offset": 171, "partition": 3, "collected_at": 1763831862249, "message": {"title": "FreshAmountChanged", "freshAmount": 4}}
+{"topic": "productionPlan", "offset": 172, "partition": 3, "collected_at": 1763831872654, "message": {"title": "AssignBlade", "machineId": 2, "bladeType": "A"}}
+{"topic": "productionPlan", "offset": 173, "partition": 3, "collected_at": 1763831872655, "message": {"title": "SwapBlade", "machineId": 0, "bladeType": "A", "eventContext": "storageAlert:49ca1c49-2e97-4625-b412-55bc07ccbd2a:problem_A", "reactionTs": 1763831872642}}
+{"topic": "productionPlan", "offset": 174, "partition": 3, "collected_at": 1763831874651, "message": {"title": "BladeSwapped", "machineId": 0, "timestamp": 1763831874647, "oldBladeType": "B", "newBladeType": "A"}}
