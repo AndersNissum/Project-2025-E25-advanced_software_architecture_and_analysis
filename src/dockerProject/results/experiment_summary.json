@@ -1,10 +1,10 @@
 {
-  "started_at": "2025-11-22T17:13:09.865985",
-  "n_events_per_scenario": 100,
+  "started_at": "2025-11-23T15:56:04.551273",
+  "n_events_per_scenario": 200,
   "n_runs_per_scenario": 1,
   "scenarios_completed": [
-    "3m_1k"
+    "3m_2k"
   ],
   "scenarios_failed": [],
-  "completed_at": "2025-11-22T18:18:20.264456"
+  "completed_at": "2025-11-23T18:53:38.369875"
 }

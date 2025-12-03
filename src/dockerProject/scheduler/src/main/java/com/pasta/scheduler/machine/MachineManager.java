@@ -1,4 +1,3 @@
-
 package com.pasta.scheduler.machine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,27 +15,21 @@ import java.util.stream.Collectors;
 
 public class MachineManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MachineManager.class);
-
     private static final int HEARTBEAT_TIMEOUT_SECONDS = 10;
     private static final int HEALTH_CHECK_INTERVAL_SECONDS = 5;
-    private static final long DISCOVERY_PHASE_DURATION_MS = 12_000;
+    private static final long DISCOVERY_PHASE_DURATION_MS = 12000;
 
     private final List<Machine> availableMachines = new ArrayList<>();
     private final Object lock = new Object();
     private final long startTime = System.currentTimeMillis();
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private boolean needsRedisUpdate = false;
-
-    // NEW: persist assigned machines to avoid reassignment storms after reload
-    private final java.util.Set<Integer> assignedMachines = new java.util.HashSet<>();
 
     public boolean isDiscoveryPhaseComplete() {
         return (System.currentTimeMillis() - startTime) > DISCOVERY_PHASE_DURATION_MS;
     }
 
-    public void addOrUpdateMachineAndSendAssignment(int machineId,
-                                                    LocalDateTime heartbeatTimestamp,
+    public void addOrUpdateMachineAndSendAssignment(int machineId, LocalDateTime heartbeatTimestamp,
                                                     String bladeTypeFromHeartbeat,
                                                     KafkaProducerManager kafkaProducer) {
         synchronized (lock) {
@@ -45,41 +38,51 @@ public class MachineManager {
                     .findFirst()
                     .orElse(null);
 
-            if (existingMachine != null) {
-                // Existing: just update heartbeat
+            // CASE 1: Machine exists and has a blade type - just update heartbeat
+            if (existingMachine != null && bladeTypeFromHeartbeat != null) {
                 existingMachine.setLastHeartbeat(heartbeatTimestamp);
-                LOGGER.debug("Updated heartbeat for machine {}", machineId);
-                return; // no assignment for existing machine
+                LOGGER.debug("Updated heartbeat for working machine {}", machineId);
+                return;
             }
 
-            // New machine — decide blade
-            BladeType bladeType;
+            // CASE 2: Machine exists but heartbeat has no blade type
+            // This means machine was restarted and is waiting for assignment
+            if (existingMachine != null && bladeTypeFromHeartbeat == null) {
+                existingMachine.setLastHeartbeat(heartbeatTimestamp);
+                LOGGER.info("Machine {} is waiting for assignment, resending AssignBlade with blade type {}",
+                        machineId, existingMachine.getBladeType().getValue());
+
+                // Always resend AssignBlade when machine is waiting
+                sendAssignBladeCommand(kafkaProducer, machineId, existingMachine.getBladeType());
+                return;
+            }
+
+            // CASE 3: New machine with blade type (recovered from Redis or another scheduler)
             if (bladeTypeFromHeartbeat != null) {
-                bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
-                LOGGER.info("New machine {} found with existing blade type {}", machineId, bladeType.getValue());
-            } else {
-                bladeType = determineBladeTypeForNewMachine();
-                LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
-
-                // Only send AssignBlade if discovery phase is complete AND not already assigned
-                if (isDiscoveryPhaseComplete() && !assignedMachines.contains(machineId)) {
-                    assignedMachines.add(machineId); // mark assigned
-                    needsRedisUpdate = true;         // NEW: persist assigned set
-                    sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
-                } else if (assignedMachines.contains(machineId)) {
-                    LOGGER.debug("Machine {} already assigned blade, skipping duplicate assignment", machineId);
-                } else {
-                    LOGGER.debug("Discovery phase in progress — delaying AssignBlade for machine {}", machineId);
-                }
+                BladeType bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
+                Machine newMachine = new Machine(machineId, bladeType);
+                newMachine.setLastHeartbeat(heartbeatTimestamp);
+                availableMachines.add(newMachine);
+                needsRedisUpdate = true;
+                LOGGER.info("New machine {} registered with existing blade type {}", machineId, bladeType.getValue());
+                return;
             }
 
+            // CASE 4: Completely new machine without blade type
+            BladeType bladeType = determineBladeTypeForNewMachine();
             Machine newMachine = new Machine(machineId, bladeType);
             newMachine.setLastHeartbeat(heartbeatTimestamp);
             availableMachines.add(newMachine);
             needsRedisUpdate = true;
-            LOGGER.info("Machine {} added (state: {})",
-                    machineId,
-                    bladeTypeFromHeartbeat != null ? "WORKING" : "WAITING_FOR_ASSIGNMENT");
+
+            LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
+
+            // Send AssignBlade immediately after discovery phase
+            if (isDiscoveryPhaseComplete()) {
+                sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
+            } else {
+                LOGGER.debug("Discovery phase in progress - delaying AssignBlade for machine {}", machineId);
+            }
         }
     }
 
@@ -91,6 +94,7 @@ public class MachineManager {
             long countB = availableMachines.stream()
                     .filter(m -> m.getBladeType() == BladeType.B)
                     .count();
+
             return countA <= countB ? BladeType.A : BladeType.B;
         }
     }
@@ -124,6 +128,7 @@ public class MachineManager {
                 long countFailedBlade = availableMachines.stream()
                         .filter(m -> m.getBladeType() == failedBladeType && m.getId() != unhealthyMachine.getId())
                         .count();
+
                 long countOtherBlade = availableMachines.stream()
                         .filter(m -> m.getBladeType() == otherBladeType)
                         .count();
@@ -144,7 +149,8 @@ public class MachineManager {
                     if (machineToSwap != null) {
                         String eventContext = String.format("machineFailure:machine_%d", unhealthyMachine.getId());
                         long reactionTs = System.currentTimeMillis();
-                        sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), failedBladeType, eventContext, reactionTs);
+                        sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), failedBladeType,
+                                eventContext, reactionTs);
                     }
                 }
             }
@@ -154,8 +160,15 @@ public class MachineManager {
     private void sendBladeSwapCommand(KafkaProducerManager kafkaProducer, int machineId,
                                       BladeType newBladeType, String eventContext, long reactionTs) {
         String message = String.format(
-                "{\"title\":\"SwapBlade\",\"machineId\":%d,\"bladeType\":\"%s\",\"eventContext\":\"%s\",\"reactionTs\":%d}",
-                machineId, newBladeType.getValue(), eventContext, reactionTs
+                "{\"title\":\"SwapBlade\"," +
+                        "\"machineId\":%d," +
+                        "\"bladeType\":\"%s\"," +
+                        "\"eventContext\":\"%s\"," +
+                        "\"reactionTs\":%d}",
+                machineId,
+                newBladeType.getValue(),
+                eventContext,
+                reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
         LOGGER.info("Sent blade swap command for machine {} to blade type {}, eventContext: {}",
@@ -171,10 +184,11 @@ public class MachineManager {
     private void sendAssignBladeCommand(KafkaProducerManager kafkaProducer, int machineId, BladeType bladeType) {
         String message = String.format(
                 "{\"title\":\"AssignBlade\",\"machineId\":%d,\"bladeType\":\"%s\"}",
-                machineId, bladeType.getValue()
+                machineId,
+                bladeType.getValue()
         );
         kafkaProducer.sendMessage("productionPlan", message);
-        LOGGER.info("Sent assign blade command for machine {} with blade type {}", machineId, bladeType);
+        LOGGER.info("Sent AssignBlade command for machine {} with blade type {}", machineId, bladeType);
     }
 
     public void saveToRedis(RedisManager redisManager) {
@@ -182,14 +196,10 @@ public class MachineManager {
             if (!needsRedisUpdate) {
                 return;
             }
+
             try {
                 String machinesJson = objectMapper.writeValueAsString(availableMachines);
                 redisManager.saveMachines(machinesJson);
-
-                // NEW: persist assignedMachines set
-                String assignedJson = objectMapper.writeValueAsString(assignedMachines);
-                redisManager.saveAssignedMachines(assignedJson);
-
                 needsRedisUpdate = false;
                 LOGGER.debug("Saved machine state to Redis");
             } catch (Exception e) {
@@ -211,15 +221,6 @@ public class MachineManager {
                 } else {
                     LOGGER.info("No machines found in Redis, starting fresh");
                 }
-
-                // NEW: restore assignedMachines set
-                String assignedJson = redisManager.getAssignedMachines();
-                assignedMachines.clear();
-                if (assignedJson != null && !assignedJson.isEmpty()) {
-                    Integer[] restored = objectMapper.readValue(assignedJson, Integer[].class);
-                    assignedMachines.addAll(Arrays.asList(restored));
-                    LOGGER.info("Loaded {} assigned machine ids from Redis", assignedMachines.size());
-                }
             } catch (Exception e) {
                 LOGGER.error("Error deserializing machines from Redis: {}", e.getMessage(), e);
             }
@@ -239,7 +240,7 @@ public class MachineManager {
             long countA = availableMachines.stream().filter(m -> m.getBladeType() == BladeType.A).count();
             long countB = availableMachines.stream().filter(m -> m.getBladeType() == BladeType.B).count();
             LOGGER.info("Blade A: {}, Blade B: {}", countA, countB);
-            availableMachines.forEach(m -> LOGGER.info(" {}", m));
+            availableMachines.forEach(m -> LOGGER.info("  {}", m));
         }
     }
 }
