@@ -1,3 +1,4 @@
+
 package com.pasta.scheduler.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,9 +15,11 @@ public class RedisManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisManager.class);
 
     private static final String ACTIVE_SCHEDULER_KEY = "active_scheduler";
-    private static final String MACHINES_KEY = "scheduler:machines";
-    private static final String FRESH_AMOUNT_KEY = "scheduler:freshAmount";
-    private static final String KAFKA_OFFSETS_KEY = "scheduler:kafka_offsets";
+    private static final String MACHINES_KEY         = "scheduler:machines";
+    private static final String ASSIGNED_KEY         = "scheduler:assigned";      // NEW
+    private static final String FRESH_AMOUNT_KEY     = "scheduler:freshAmount";
+    private static final String KAFKA_OFFSETS_KEY    = "scheduler:kafka_offsets";
+
     private static final int LEASE_DURATION_SECONDS = 5;
 
     private final JedisPool jedisPool;
@@ -29,13 +32,9 @@ public class RedisManager {
 
     public boolean becomeActiveScheduler(String schedulerId) {
         try (Jedis jedis = jedisPool.getResource()) {
-            SetParams params = new SetParams()
-                    .nx()  // Only set if key does not exist
-                    .ex(LEASE_DURATION_SECONDS);  // Expiry after 5 seconds
-
+            SetParams params = new SetParams().nx().ex(LEASE_DURATION_SECONDS);
             String result = jedis.set(ACTIVE_SCHEDULER_KEY, schedulerId, params);
             boolean success = result != null && result.equals("OK");
-
             if (success) {
                 LOGGER.info("Became active scheduler");
             }
@@ -68,6 +67,24 @@ public class RedisManager {
             return jedis.get(MACHINES_KEY);
         } catch (Exception e) {
             LOGGER.error("Error loading machines from Redis: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    // NEW: assignedMachines persistence
+    public void saveAssignedMachines(String assignedJson) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.set(ASSIGNED_KEY, assignedJson);
+        } catch (Exception e) {
+            LOGGER.error("Error saving assignedMachines to Redis: {}", e.getMessage(), e);
+        }
+    }
+
+    public String getAssignedMachines() {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.get(ASSIGNED_KEY);
+        } catch (Exception e) {
+            LOGGER.error("Error loading assignedMachines from Redis: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -111,7 +128,6 @@ public class RedisManager {
         try (Jedis jedis = jedisPool.getResource()) {
             Map<String, String> offsetMap = jedis.hgetAll(KAFKA_OFFSETS_KEY);
             Map<String, Long> result = new HashMap<>();
-
             for (Map.Entry<String, String> entry : offsetMap.entrySet()) {
                 try {
                     result.put(entry.getKey(), Long.parseLong(entry.getValue()));

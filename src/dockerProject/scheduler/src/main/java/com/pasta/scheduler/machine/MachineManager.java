@@ -24,8 +24,6 @@ public class MachineManager {
     private final long startTime = System.currentTimeMillis();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private boolean needsRedisUpdate = false;
-    private final java.util.Set<Integer> assignedMachines = new java.util.HashSet<>();
-    private final java.util.Map<Integer, Long> lastHeartbeatTime = new java.util.HashMap<>();
 
     public boolean isDiscoveryPhaseComplete() {
         return (System.currentTimeMillis() - startTime) > DISCOVERY_PHASE_DURATION_MS;
@@ -40,42 +38,51 @@ public class MachineManager {
                     .findFirst()
                     .orElse(null);
 
-            if (existingMachine != null) {
-                // Machine already exists, just update heartbeat
+            // CASE 1: Machine exists and has a blade type - just update heartbeat
+            if (existingMachine != null && bladeTypeFromHeartbeat != null) {
                 existingMachine.setLastHeartbeat(heartbeatTimestamp);
-                LOGGER.debug("Updated heartbeat for machine {}", machineId);
-                return;  // Exit early - don't send assignment for existing machine
+                LOGGER.debug("Updated heartbeat for working machine {}", machineId);
+                return;
             }
 
-            // New machine - need to assign blade type
-            BladeType bladeType;
+            // CASE 2: Machine exists but heartbeat has no blade type
+            // This means machine was restarted and is waiting for assignment
+            if (existingMachine != null && bladeTypeFromHeartbeat == null) {
+                existingMachine.setLastHeartbeat(heartbeatTimestamp);
+                LOGGER.info("Machine {} is waiting for assignment, resending AssignBlade with blade type {}",
+                        machineId, existingMachine.getBladeType().getValue());
 
+                // Always resend AssignBlade when machine is waiting
+                sendAssignBladeCommand(kafkaProducer, machineId, existingMachine.getBladeType());
+                return;
+            }
+
+            // CASE 3: New machine with blade type (recovered from Redis or another scheduler)
             if (bladeTypeFromHeartbeat != null) {
-                // Machine already has a blade type (recovered from another scheduler instance)
-                bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
-                LOGGER.info("New machine {} found with existing blade type {}", machineId, bladeType.getValue());
-            } else {
-                // New machine needs blade assignment
-                bladeType = determineBladeTypeForNewMachine();
-                LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
-
-                // Only send AssignBlade if discovery phase is complete AND not already assigned
-                if (isDiscoveryPhaseComplete() && !assignedMachines.contains(machineId)) {
-                    assignedMachines.add(machineId);  // Mark as assigned
-                    sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
-                } else if (assignedMachines.contains(machineId)) {
-                    LOGGER.debug("Machine {} already assigned blade, skipping duplicate assignment", machineId);
-                } else {
-                    LOGGER.debug("Discovery phase in progress - delaying AssignBlade for machine {}", machineId);
-                }
+                BladeType bladeType = BladeType.fromString(bladeTypeFromHeartbeat);
+                Machine newMachine = new Machine(machineId, bladeType);
+                newMachine.setLastHeartbeat(heartbeatTimestamp);
+                availableMachines.add(newMachine);
+                needsRedisUpdate = true;
+                LOGGER.info("New machine {} registered with existing blade type {}", machineId, bladeType.getValue());
+                return;
             }
 
+            // CASE 4: Completely new machine without blade type
+            BladeType bladeType = determineBladeTypeForNewMachine();
             Machine newMachine = new Machine(machineId, bladeType);
             newMachine.setLastHeartbeat(heartbeatTimestamp);
             availableMachines.add(newMachine);
             needsRedisUpdate = true;
-            LOGGER.info("Machine {} added to available machines (state: {})", machineId,
-                    bladeTypeFromHeartbeat != null ? "WORKING" : "WAITING_FOR_ASSIGNMENT");
+
+            LOGGER.info("New machine {} created with assigned blade type {}", machineId, bladeType.getValue());
+
+            // Send AssignBlade immediately after discovery phase
+            if (isDiscoveryPhaseComplete()) {
+                sendAssignBladeCommand(kafkaProducer, machineId, bladeType);
+            } else {
+                LOGGER.debug("Discovery phase in progress - delaying AssignBlade for machine {}", machineId);
+            }
         }
     }
 
@@ -140,7 +147,6 @@ public class MachineManager {
                             .orElse(null);
 
                     if (machineToSwap != null) {
-                        // NEW: Event context for machine failure
                         String eventContext = String.format("machineFailure:machine_%d", unhealthyMachine.getId());
                         long reactionTs = System.currentTimeMillis();
                         sendBladeSwapCommand(kafkaProducer, machineToSwap.getId(), failedBladeType,
@@ -182,7 +188,7 @@ public class MachineManager {
                 bladeType.getValue()
         );
         kafkaProducer.sendMessage("productionPlan", message);
-        LOGGER.info("Sent assign blade command for machine {} with blade type {}", machineId, bladeType);
+        LOGGER.info("Sent AssignBlade command for machine {} with blade type {}", machineId, bladeType);
     }
 
     public void saveToRedis(RedisManager redisManager) {

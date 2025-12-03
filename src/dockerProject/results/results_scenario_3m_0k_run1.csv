@@ -1,5 +1,0 @@
-event_id,event_type,trigger_ts,trigger_source,reaction_ts,reaction_type,solved_ts,related_machine_id,related_alert_id,resolution_time_ms,total_response_time_ms,metadata
-newMachine:machine_0,newMachine,1763731621178,cutting_machine_discovery,,none,1763731631179,,,,10001,"{""first_state"": ""WAITING_FOR_ASSIGNMENT""}"
-newMachine:machine_1,newMachine,1763731621232,cutting_machine_discovery,,none,1763731636233,1,,,15001,"{""first_state"": ""WAITING_FOR_ASSIGNMENT""}"
-newMachine:machine_2,newMachine,1763731621251,cutting_machine_discovery,,none,1763731656252,2,,,35001,"{""first_state"": ""WAITING_FOR_ASSIGNMENT""}"
-storageAlert:11372066-e62c-4140-9eed-90037a147b12:problem_B,storageAlert,1763731685460,dbInterface,1763731685519,SwapBlade,1763731690519,,11372066-e62c-4140-9eed-90037a147b12,59,5059,"{""problem_category"": ""B"", ""a_fresh"": 43.0, ""a_dry"": 82.0, ""b_fresh"": 33.0, ""b_dry"": 42.0}"

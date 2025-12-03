@@ -1,3 +1,4 @@
+
 package com.pasta.scheduler;
 
 import com.pasta.scheduler.kafka.KafkaConsumerManager;
@@ -9,17 +10,25 @@ import org.slf4j.LoggerFactory;
 
 public class Scheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
+
     private static final int INITIAL_FRESH_AMOUNT = 4;
     private static final String SCHEDULER_ID = "primary";
     private static final int REDIS_PERSIST_INTERVAL_SECONDS = 5;
+
+    // NEW: cooldown to avoid repeated init change spam after reload/leadership renewal
+    private static final long INIT_CHANGE_COOLDOWN_MS = 30_000;
 
     private final MachineManager machineManager;
     private final KafkaConsumerManager kafkaConsumer;
     private final KafkaProducerManager kafkaProducer;
     private final RedisManager redisManager;
+
     private int freshAmount;
     private int lastSentFreshAmount;
     private boolean isActive = false;
+
+    // NEW: track last init ChangeFreshAmount emission time
+    private long lastInitChangeSentAt = 0L;
 
     public Scheduler(String kafkaBootstrapServers, String redisHost, int redisPort) {
         this.machineManager = new MachineManager();
@@ -29,13 +38,11 @@ public class Scheduler {
         this.freshAmount = INITIAL_FRESH_AMOUNT;
         this.lastSentFreshAmount = -1;
 
-        LOGGER.info("Scheduler initialized with Kafka: {}, Redis: {}:{}",
-                kafkaBootstrapServers, redisHost, redisPort);
+        LOGGER.info("Scheduler initialized with Kafka: {}, Redis: {}:{}", kafkaBootstrapServers, redisHost, redisPort);
     }
 
     public void start() {
         LOGGER.info("Starting Scheduler");
-
         // Attempt leader election via Redis
         if (!attemptLeaderElection()) {
             LOGGER.warn("Failed to become active scheduler, but continuing as standby...");
@@ -44,10 +51,10 @@ public class Scheduler {
         // Load persisted state from Redis if available
         loadStateFromRedis();
 
-        // Send initial ChangeFreshAmount message
+        // Send initial ChangeFreshAmount message (with cooldown + idempotence)
         sendChangeFreshAmountMessage(freshAmount);
 
-        // Start Kafka consumer in a separate thread
+        // Start Kafka consumer
         Thread consumerThread = new Thread(() -> {
             LOGGER.info("Starting Kafka consumer");
             kafkaConsumer.consumeHeartbeats(machineManager, kafkaProducer, this);
@@ -55,11 +62,11 @@ public class Scheduler {
         consumerThread.setDaemon(true);
         consumerThread.start();
 
-        // Start machine health checker in a separate thread with a delay
+        // Start machine health checker
         Thread healthCheckThread = new Thread(() -> {
             try {
                 LOGGER.info("Waiting 10 seconds for initial machine discovery...");
-                Thread.sleep(10000);
+                Thread.sleep(10_000);
                 LOGGER.info("Starting machine health checker");
                 machineManager.startHealthCheck(kafkaProducer);
             } catch (InterruptedException e) {
@@ -70,11 +77,11 @@ public class Scheduler {
         healthCheckThread.setDaemon(true);
         healthCheckThread.start();
 
-        // Start Redis state persistence thread
+        // Start Redis state persistence
         Thread redisPersistThread = new Thread(() -> {
             try {
                 LOGGER.info("Waiting before starting Redis persistence...");
-                Thread.sleep(5000);
+                Thread.sleep(5_000);
                 LOGGER.info("Starting Redis state persistence");
                 persistStateToRedisLoop();
             } catch (InterruptedException e) {
@@ -85,10 +92,10 @@ public class Scheduler {
         redisPersistThread.setDaemon(true);
         redisPersistThread.start();
 
-        // Start leader election renewal thread (only if active)
+        // Start leader renewal
         Thread leaderRenewalThread = new Thread(() -> {
             try {
-                Thread.sleep(2000);  // Wait before starting renewal
+                Thread.sleep(2000);
                 LOGGER.info("Starting leader election renewal");
                 renewLeadershipLoop();
             } catch (InterruptedException e) {
@@ -122,8 +129,7 @@ public class Scheduler {
     private void renewLeadershipLoop() {
         while (true) {
             try {
-                Thread.sleep(3000);  // Renew every 3 seconds (lease is 5 seconds)
-
+                Thread.sleep(3000); // Renew every 3 seconds (lease is 5 seconds)
                 if (isActive) {
                     boolean stillActive = redisManager.becomeActiveScheduler(SCHEDULER_ID);
                     if (!stillActive) {
@@ -133,13 +139,11 @@ public class Scheduler {
                         LOGGER.debug("✓ Leadership renewed");
                     }
                 } else {
-                    // Try to acquire leadership if we lost it
                     boolean acquired = redisManager.becomeActiveScheduler(SCHEDULER_ID);
                     if (acquired) {
                         LOGGER.info("✅ Acquired leadership, transitioning to ACTIVE");
                         isActive = true;
-                        // Reload state when becoming active
-                        loadStateFromRedis();
+                        loadStateFromRedis(); // reload when becoming active
                     }
                 }
             } catch (Exception e) {
@@ -158,17 +162,10 @@ public class Scheduler {
         while (true) {
             try {
                 Thread.sleep(REDIS_PERSIST_INTERVAL_SECONDS * 1000);
-
                 if (isActive) {
-                    // Persist machine state
                     machineManager.saveToRedis(redisManager);
-
-                    // Persist freshAmount
                     redisManager.setFreshAmount(freshAmount);
-
-                    // Persist Kafka offsets
                     redisManager.setKafkaOffsets(kafkaConsumer.getOffsets());
-
                     LOGGER.debug("State persisted to Redis");
                 } else {
                     LOGGER.debug("Standby scheduler, skipping Redis persistence");
@@ -188,21 +185,21 @@ public class Scheduler {
     private void loadStateFromRedis() {
         try {
             LOGGER.info("Loading scheduler state from Redis...");
-
-            // Load machine state
             machineManager.loadFromRedis(redisManager);
 
-            // Load freshAmount
             Integer savedFreshAmount = redisManager.getFreshAmount();
             if (savedFreshAmount != null) {
+                // NEW: only force resend if the persisted value differs from what we last sent
                 freshAmount = savedFreshAmount;
-                lastSentFreshAmount = -1;  // Force resend
-                LOGGER.info("Loaded freshAmount from Redis: {}", freshAmount);
+                if (lastSentFreshAmount != freshAmount) {
+                    lastSentFreshAmount = -1; // force next send
+                    LOGGER.info("Loaded freshAmount from Redis (will re-send): {}", freshAmount);
+                } else {
+                    LOGGER.info("Loaded freshAmount from Redis (unchanged, no resend): {}", freshAmount);
+                }
             }
 
-            // Load Kafka offsets
             kafkaConsumer.setOffsets(redisManager.getKafkaOffsets());
-
             LOGGER.info("✓ State loaded from Redis");
         } catch (Exception e) {
             LOGGER.error("Error loading state from Redis: {}", e.getMessage(), e);
@@ -212,8 +209,6 @@ public class Scheduler {
 
     public synchronized void updateFreshAmount(int delta, String eventContext, long reactionTs) {
         int newFreshAmount = freshAmount + delta;
-
-        // Clamp freshAmount between 0 and 10
         if (newFreshAmount < 0) {
             newFreshAmount = 0;
             LOGGER.warn("freshAmount would be negative, clamped to 0");
@@ -222,12 +217,16 @@ public class Scheduler {
             LOGGER.warn("freshAmount would exceed 10, clamped to 10");
         }
 
+        // NEW: idempotence — skip if effective value unchanged
+        if (newFreshAmount == freshAmount && newFreshAmount == lastSentFreshAmount) {
+            LOGGER.debug("freshAmount unchanged ({}), skipping message", newFreshAmount);
+            return;
+        }
+
         freshAmount = newFreshAmount;
         LOGGER.info("Updated freshAmount: {} (delta: {}, eventContext: {})", freshAmount, delta, eventContext);
         sendChangeFreshAmountMessage(freshAmount, eventContext, reactionTs);
-
-        // Immediately persist to Redis
-        redisManager.setFreshAmount(freshAmount);
+        redisManager.setFreshAmount(freshAmount); // persist immediately
     }
 
     private void sendChangeFreshAmountMessage(int amount, String eventContext, long reactionTs) {
@@ -236,26 +235,28 @@ public class Scheduler {
             LOGGER.debug("freshAmount unchanged ({}), skipping message", amount);
             return;
         }
-
         lastSentFreshAmount = amount;
+
         String message = String.format(
-                "{\"title\":\"ChangeFreshAmount\"," +
-                        "\"freshAmount\":%d," +
-                        "\"eventContext\":\"%s\"," +
-                        "\"reactionTs\":%d}",
-                amount,
-                eventContext,
-                reactionTs
+                "{\"title\":\"ChangeFreshAmount\",\"freshAmount\":%d,\"eventContext\":\"%s\",\"reactionTs\":%d}",
+                amount, eventContext, reactionTs
         );
         kafkaProducer.sendMessage("productionPlan", message);
         LOGGER.info("Sent ChangeFreshAmount message with freshAmount={}, eventContext={}", amount, eventContext);
     }
 
-    public synchronized void sendChangeFreshAmountMessage(int delta) {
-        // Use default event context for initial setup
+    public synchronized void sendChangeFreshAmountMessage(int amount) {
+        // Initialization path: add a small cooldown to avoid repeated init spam on reloads
+        long now = System.currentTimeMillis();
+        if (amount == lastSentFreshAmount && (now - lastInitChangeSentAt) < INIT_CHANGE_COOLDOWN_MS) {
+            LOGGER.debug("Skipping init ChangeFreshAmount: same value {} within cooldown {}ms", amount, INIT_CHANGE_COOLDOWN_MS);
+            return;
+        }
+        lastInitChangeSentAt = now;
+
         String eventContext = "initialization:startup";
         long reactionTs = System.currentTimeMillis();
-        sendChangeFreshAmountMessage(delta, eventContext, reactionTs);
+        sendChangeFreshAmountMessage(amount, eventContext, reactionTs);
     }
 
     public int getFreshAmount() {

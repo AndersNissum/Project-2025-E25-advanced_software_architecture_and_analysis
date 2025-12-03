@@ -106,7 +106,7 @@ def main():
     print(f"{Colors.RESET}")
     print(f"Monitoring topics: {Colors.BOLD}heartbeats, productionPlan{Colors.RESET}\n")
     
-    topics = ['heartbeats', 'productionPlan', 'batches', 'experiment']
+    topics = ['heartbeats', 'productionPlan', 'storageAlerts', 'experiment']
     
     # Create a thread for each topic
     threads = []
