@@ -87,11 +87,11 @@ class ExperimentRunner:
         # scenarios = get_all_scenarios()
         # For now, keep the single baseline scenario, as in your existing runner:
         scenario = Scenario(
-            id="3m_1k",
+            id="3m_2k",
             num_cutting_machines=3,
-            max_killable_machines=1,
+            max_killable_machines=2,
             max_killable_schedulers=1,
-            description="3 machines, max 1 kill per time"
+            description="3 machines, max 2 kill per time"
         )
 
         summary = {
@@ -166,7 +166,7 @@ class ExperimentRunner:
 
         # 7. Wait for raw messages (target = 5 × n_events)
         LOGGER.info(f"Waiting for {self.raw_message_target} raw messages (target for {self.n_events} events)...")
-        self._wait_for_events(scenario, timeout=5400)  # NEW: increased timeout to 1800s
+        self._wait_for_events(scenario, timeout=10800)  # NEW: increased timeout to 10800s
 
         # 8. Stop all containers
         LOGGER.info("Stopping containers...")

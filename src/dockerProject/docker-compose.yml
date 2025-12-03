@@ -175,6 +175,36 @@ services:
       - MQTT_PORT=1883
     restart: on-failure
 
+  cutting-machine-3:
+    build:
+      context: ./cuttingMachine
+      dockerfile: ./Dockerfile
+    networks:
+      - mynetwork
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    environment:
+      - MACHINE_ID=3
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+    restart: on-failure
+
+  cutting-machine-4:
+    build:
+      context: ./cuttingMachine
+      dockerfile: ./Dockerfile
+    networks:
+      - mynetwork
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    environment:
+      - MACHINE_ID=4
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+    restart: on-failure
+
   # Kafka Monitor (Python)
   kafka-monitor:
     build:
