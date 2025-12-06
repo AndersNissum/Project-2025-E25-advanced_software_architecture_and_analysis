@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>typedef int[0,2] id_type;
+typedef int[0,3] pasta_type;
+
+broadcast chan newHeartbeat[id_type];
+broadcast chan heartbeat[id_type];
+broadcast chan assignA[id_type];
+broadcast chan assignB[id_type];
+broadcast chan changeBlade[id_type];
+broadcast chan schedulerHb;
+broadcast chan storageLevel;
+
+const pasta_type A = 0;
+const pasta_type B = 1;
+const pasta_type FRESH = 2;
+const pasta_type DRIED = 3;
+
+pasta_type blades[3] = { 3, 3, 3 };
+
+int[0,3] aMachines = 0;
+int[0,3] bMachines = 0;
+
+int[0,5] sortingFreshTime = 2;
+
+int[0,100] freshA = 50;
+int[0,100] freshB = 50;
+int[0,100] driedA = 50;
+int[0,100] driedB = 50;
+
+int min(int a, int b){
+    if(a&lt;=b){
+        return a;
+    } else {
+        return b;
+    }
+}
+
+int max(int a, int b){
+    if(a&gt;=b){
+        return a;
+    } else {
+        return b;
+    }
+}</declaration>
+	<template>
+		<name>SchedulerDB</name>
+		<declaration>clock c;
+
+int[-1,3] problem;
+int[0,2] change = 0;
+
+void identifyProblem(){
+    int[0,200] totA = freshA + driedA;
+    int[0,200] totB = freshB + driedB;
+    int[0,200] totFresh = freshA + freshB;
+    int[0,200] totDried = driedA + driedB;
+
+    pasta_type newProblem;
+    if(totA &lt;= totB &amp;&amp; totA &lt;= totFresh &amp;&amp; totA &lt;= totDried){
+        newProblem = A;
+    } else if(totB &lt;= totA &amp;&amp; totB &lt;= totFresh &amp;&amp; totB &lt;= totDried){
+        newProblem = B;
+    } else if(totFresh &lt;= totA &amp;&amp; totFresh &lt;= totB &amp;&amp; totFresh &lt;= totDried){
+        newProblem = FRESH;
+    } else {
+        newProblem =  DRIED;
+    }
+
+    //sporadic constraint on storage alerts reaction
+    if(newProblem==problem &amp;&amp; c&lt;11){
+        problem = -1;
+    } else {
+        problem = newProblem;
+    }
+
+    //checkSwapBlade
+    if(problem==A &amp;&amp; bMachines&gt;1 || (aMachines&lt;=1 &amp;&amp; bMachines==1)){
+        if(blades[0]==B){
+            change=0;
+        } else if(blades[1]==B) {
+            change=1;
+        } else {
+            change=2;
+        }
+    } else if(problem==B &amp;&amp; aMachines&gt;1 || (bMachines&lt;=1 &amp;&amp; aMachines==1)){
+        if(blades[0]==A){
+            change=0;
+        } else if(blades[1]==A) {
+            change=1;
+        } else {
+            change=2;
+        }
+    } else {
+        change=0;
+    }
+}
+
+void increaseFreshTime(){
+    sortingFreshTime = min(sortingFreshTime+1, 4);
+}
+
+void decreaseFreshTime(){
+    sortingFreshTime = max(sortingFreshTime-1, 1);
+}</declaration>
+		<location id="id0" x="-289" y="-8">
+			<name x="-340" y="-17">idle</name>
+		</location>
+		<location id="id1" x="323" y="-8">
+			<name x="340" y="-16">changeProduction</name>
+			<urgent/>
+		</location>
+		<init ref="id0"/>
+		<transition id="id2">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="212" y="229">problem==DRIED</label>
+			<label kind="assignment" x="-271" y="229">decreaseFreshTime(),
+c=0</label>
+			<nail x="331" y="229"/>
+			<nail x="-289" y="229"/>
+		</transition>
+		<transition id="id3">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="144" y="110">problem==FRESH</label>
+			<label kind="assignment" x="-212" y="110">increaseFreshTime(),
+c=0</label>
+			<nail x="263" y="110"/>
+			<nail x="-229" y="110"/>
+		</transition>
+		<transition id="id4">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="102" y="-25">problem==A || problem==B</label>
+			<label kind="synchronisation" x="-136" y="-25">changeBlade[change]!</label>
+			<label kind="assignment" x="-246" y="-25">c=0</label>
+		</transition>
+		<transition id="id5">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="170" y="-144">problem==-1</label>
+			<nail x="263" y="-127"/>
+			<nail x="-229" y="-127"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-59" y="-263">storageLevel?</label>
+			<nail x="-289" y="-246"/>
+			<nail x="323" y="-246"/>
+		</transition>
+	</template>
+	<template>
+		<name>SchedulerMachine</name>
+		<parameter>const id_type id</parameter>
+		<declaration>clock c;
+
+id_type change;
+
+bool checkAssignA(){ 
+    return aMachines&lt;=bMachines; 
+} 
+
+void updateAssignBlade(pasta_type blade){
+    blades[id]=blade;
+    if(blade==A){
+        aMachines++;
+    } else {
+        bMachines++;
+    }
+}
+
+void updateMachine(){
+    if(blades[id]==A){
+        aMachines--;
+    } else if(blades[id]==B) {
+        bMachines--;
+    }
+
+    //checkSwapBlade
+    if(blades[id]!=3 &amp;&amp; bMachines&lt;aMachines-1){
+        if(blades[0]==A){
+            change=0;
+        } else {
+            change=1;
+        }
+    } else if(blades[id]!=3 &amp;&amp; aMachines&lt;bMachines-1){
+        if(blades[0]==B){
+            change=0;
+        } else {
+            change=1;
+        }
+    } else {
+        change=2;
+    }
+
+    blades[id]=3;
+}</declaration>
+		<location id="id7" x="-1173" y="-399">
+			<name x="-1198" y="-382">idle</name>
+			<label kind="invariant" x="-1207" y="-365">c&lt;=10</label>
+		</location>
+		<location id="id8" x="-703" y="-399">
+			<name x="-688" y="-416">recover</name>
+			<committed/>
+		</location>
+		<location id="id9" x="-1513" y="-662">
+			<name x="-1556" y="-696">assignBlade</name>
+			<committed/>
+		</location>
+		<init ref="id7"/>
+		<transition id="id10">
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1470" y="-620">!checkAssignA()</label>
+			<label kind="synchronisation" x="-1368" y="-543">assignB[id]!</label>
+			<label kind="assignment" x="-1343" y="-467">updateAssignBlade(B),
+c=0</label>
+		</transition>
+		<transition id="id11">
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1411" y="-679">checkAssignA()</label>
+			<label kind="synchronisation" x="-1224" y="-679">assignA[id]!</label>
+			<label kind="assignment" x="-1249" y="-629">updateAssignBlade(A),
+c=0</label>
+			<nail x="-1173" y="-662"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-1496" y="-424">newHeartbeat[id]?</label>
+			<nail x="-1513" y="-399"/>
+		</transition>
+		<transition id="id13">
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-790" y="-229">change==2</label>
+			<label kind="assignment" x="-1078" y="-229">c=0</label>
+			<nail x="-705" y="-229"/>
+			<nail x="-1096" y="-229"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-798" y="-416">change!=2</label>
+			<label kind="synchronisation" x="-1036" y="-416">changeBlade[change]!</label>
+			<label kind="assignment" x="-1138" y="-416">c=0</label>
+		</transition>
+		<transition id="id15">
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-1088" y="-586">c==10</label>
+			<label kind="assignment" x="-832" y="-586">updateMachine()</label>
+			<nail x="-1096" y="-569"/>
+			<nail x="-705" y="-569"/>
+		</transition>
+		<transition id="id16">
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-1266" y="-178">heartbeat[id]?</label>
+			<label kind="assignment" x="-1351" y="-203">c=0</label>
+			<nail x="-1181" y="-237"/>
+			<nail x="-1317" y="-144"/>
+			<nail x="-1317" y="-305"/>
+		</transition>
+	</template>
+	<template>
+		<name>SchedulerState</name>
+		<parameter>const id_type id</parameter>
+		<declaration>clock c;
+
+int[0,10] failCd;</declaration>
+		<location id="id17" x="-59" y="-25">
+			<name x="-51" y="-16">shadow</name>
+			<label kind="invariant" x="-46" y="-1">c&lt;=11</label>
+		</location>
+		<location id="id18" x="-365" y="-25">
+			<name x="-348" y="-67">active</name>
+			<label kind="invariant" x="-348" y="-50">c&lt;=5</label>
+		</location>
+		<location id="id19" x="-212" y="-365">
+			<name x="-222" y="-399">idle</name>
+			<committed/>
+		</location>
+		<location id="id20" x="-207" y="75">
+			<name x="-233" y="84">failed</name>
+			<label kind="invariant" x="-224" y="101">c&lt;=11</label>
+		</location>
+		<init ref="id19"/>
+		<transition id="id21">
+			<source ref="id19"/>
+			<target ref="id17"/>
+			<label kind="guard" x="17" y="-280">id==1</label>
+			<label kind="assignment" x="5" y="-171">c=0</label>
+			<nail x="39" y="-256"/>
+		</transition>
+		<transition id="id22">
+			<source ref="id20"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-190" y="16">c==11</label>
+			<label kind="assignment" x="-122" y="-18">c=0</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id18"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-309" y="-18">c==5 &amp;&amp;
+failCd==0</label>
+			<label kind="assignment" x="-250" y="24">c=0</label>
+		</transition>
+		<transition id="id24">
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-501" y="-289">id==0</label>
+			<label kind="assignment" x="-510" y="-187">c=0,
+failCd=10</label>
+			<nail x="-471" y="-264"/>
+		</transition>
+		<transition id="id25">
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-110" y="-161">c==11</label>
+			<label kind="assignment" x="-357" y="-187">c=0,
+failCd=10</label>
+			<nail x="-59" y="-144"/>
+			<nail x="-365" y="-144"/>
+		</transition>
+		<transition id="id26">
+			<source ref="id17"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="68" y="25">schedulerHb?</label>
+			<label kind="assignment" x="-54" y="84">c=0</label>
+			<nail x="68" y="-25"/>
+			<nail x="68" y="85"/>
+			<nail x="-59" y="86"/>
+		</transition>
+		<transition id="id27">
+			<source ref="id18"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-425" y="93">c==5 &amp;&amp;
+failCd!=0</label>
+			<label kind="synchronisation" x="-603" y="68">schedulerHb!</label>
+			<label kind="assignment" x="-535" y="-42">c=0, failCd--</label>
+			<nail x="-365" y="93"/>
+			<nail x="-501" y="93"/>
+			<nail x="-501" y="-25"/>
+		</transition>
+	</template>
+	<template>
+		<name>DB</name>
+		<declaration>clock c;
+
+void updateLevels(int i, int j, int k, int l){
+    int total = i + j + k + l;
+    int target = (aMachines + bMachines) * 5;
+
+    // If total is already correct, no adjustment needed
+    if (total == target || total == 0) return;
+
+    // First, scale values proportionally
+    i = (i * target) / total;
+    j = (j * target) / total;
+    k = (k * target) / total;
+    l = (l * target) / total;
+
+    // Adjust rounding differences so the total exactly equals target
+    total = i + j + k + l;
+    while (total != target) {
+        if (total &lt; target) {
+            // Add 1 to the variable with the largest fractional remainder or smallest current value
+            if (i &lt;= j &amp;&amp; i &lt;= k &amp;&amp; i &lt;= l) i++;
+            else if (j &lt;= k &amp;&amp; j &lt;= l) j++;
+            else if (k &lt;= l) k++;
+            else l++;
+        } else {
+            // Subtract 1 from the variable with the largest value
+            if (i &gt;= j &amp;&amp; i &gt;= k &amp;&amp; i &gt;= l) i--;
+            else if (j &gt;= k &amp;&amp; j &gt;= l) j--;
+            else if (k &gt;= l) k--;
+            else l--;
+        }
+        total = i + j + k + l;
+    }
+
+    freshA=min(max(freshA - i + aMachines*sortingFreshTime, 0), 100);
+    freshB=min(max(freshB - j + bMachines*sortingFreshTime, 0), 100);
+    driedA=min(max(driedA - k + aMachines*(5-sortingFreshTime), 0), 100);
+    driedB=min(max(driedB - l + bMachines*(5-sortingFreshTime), 0), 100);
+}
+
+bool checkThresholds(){
+    return (freshA&gt;20 &amp;&amp; freshB&gt;20 &amp;&amp; driedA&gt;20 &amp;&amp; driedB&gt;20) &amp;&amp; (freshA&lt;80 &amp;&amp; freshB&lt;80 &amp;&amp; driedA&lt;80 &amp;&amp; driedB&lt;80);
+}</declaration>
+		<location id="id28" x="-4079" y="-3400">
+			<label kind="invariant" x="-4122" y="-3434">c&lt;=5</label>
+		</location>
+		<location id="id29" x="-3561" y="-3400">
+			<committed/>
+		</location>
+		<init ref="id28"/>
+		<transition id="id30">
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-3689" y="-3248">!checkThresholds()</label>
+			<label kind="synchronisation" x="-4105" y="-3248">storageLevel!</label>
+			<label kind="assignment" x="-4079" y="-3359">c=0</label>
+			<nail x="-3561" y="-3248"/>
+			<nail x="-4079" y="-3248"/>
+		</transition>
+		<transition id="id31">
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-3739" y="-3418">checkThresholds()</label>
+			<label kind="assignment" x="-4028" y="-3418">c=0</label>
+		</transition>
+		<transition id="id32">
+			<source ref="id28"/>
+			<target ref="id29"/>
+			<label kind="select" x="-4020" y="-3604">i:int[1,2],j:int[1,2],k:int[1,2],l:int[1,2]</label>
+			<label kind="guard" x="-4113" y="-3511">c==5</label>
+			<label kind="assignment" x="-3561" y="-3511">updateLevels(i,j,k,l)</label>
+			<nail x="-4079" y="-3579"/>
+			<nail x="-3561" y="-3579"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">CuttingMachine</name>
+		<parameter>const id_type id</parameter>
+		<declaration>clock c;
+
+int[0,10] failCd = 0;</declaration>
+		<location id="id33" x="-8" y="-595">
+			<name x="-25" y="-629">idle</name>
+			<urgent/>
+		</location>
+		<location id="id34" x="-8" y="-399">
+			<name x="8" y="-416">waiting</name>
+		</location>
+		<location id="id35" x="-153" y="-212">
+			<name x="-187" y="-263">workingA</name>
+			<label kind="invariant" x="-170" y="-246">c&lt;=5</label>
+		</location>
+		<location id="id36" x="144" y="-212">
+			<name x="119" y="-263">workingB</name>
+			<label kind="invariant" x="127" y="-246">c&lt;=5</label>
+		</location>
+		<location id="id37" x="0" y="-17">
+			<name x="-25" y="-8">failed</name>
+			<label kind="invariant" x="-16" y="8">c&lt;=30</label>
+		</location>
+		<init ref="id33"/>
+		<transition id="id38">
+			<source ref="id36"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-68" y="-204">changeBlade[id]?</label>
+			<nail x="-8" y="-161"/>
+		</transition>
+		<transition id="id39">
+			<source ref="id35"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-68" y="-289">changeBlade[id]?</label>
+			<nail x="-8" y="-272"/>
+		</transition>
+		<transition id="id40">
+			<source ref="id37"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-433" y="-17">c==30</label>
+			<nail x="-442" y="-17"/>
+			<nail x="-442" y="-595"/>
+		</transition>
+		<transition id="id41">
+			<source ref="id36"/>
+			<target ref="id37"/>
+			<label kind="select" x="42" y="-110">i:int[0,3]</label>
+			<label kind="guard" x="85" y="-170">c==5 &amp;&amp;
+failCd==0</label>
+			<label kind="assignment" x="34" y="-68">c=i*5</label>
+		</transition>
+		<transition id="id42">
+			<source ref="id35"/>
+			<target ref="id37"/>
+			<label kind="select" x="-119" y="-110">i:int[0,3]</label>
+			<label kind="guard" x="-144" y="-170">c==5 &amp;&amp;
+failCd==0</label>
+			<label kind="assignment" x="-68" y="-68">c=i*5</label>
+		</transition>
+		<transition id="id43">
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="guard" x="-272" y="-136">c==5 &amp;&amp;
+failCd&gt;0</label>
+			<label kind="synchronisation" x="-374" y="-221">heartbeat[id]!</label>
+			<label kind="assignment" x="-272" y="-331">c=0,
+failCd--</label>
+			<nail x="-255" y="-127"/>
+			<nail x="-255" y="-297"/>
+		</transition>
+		<transition id="id44">
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="guard" x="246" y="-340">c==5 &amp;&amp;
+failCd&gt;0</label>
+			<label kind="synchronisation" x="272" y="-229">heartbeat[id]!</label>
+			<label kind="assignment" x="246" y="-144">c=0,
+failCd--</label>
+			<nail x="263" y="-306"/>
+			<nail x="263" y="-136"/>
+		</transition>
+		<transition id="id45">
+			<source ref="id34"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="42" y="-357">assignB[id]?</label>
+			<label kind="assignment" x="93" y="-297">c=0</label>
+		</transition>
+		<transition id="id46">
+			<source ref="id34"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-153" y="-357">assignA[id]?</label>
+			<label kind="assignment" x="-127" y="-297">c=0</label>
+		</transition>
+		<transition id="id47">
+			<source ref="id33"/>
+			<target ref="id34"/>
+			<label kind="select" x="0" y="-569">i:int[6,10]</label>
+			<label kind="synchronisation" x="0" y="-510">newHeartbeat[id]!</label>
+			<label kind="assignment" x="0" y="-450">failCd=i, c=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>SortingSubsystem</name>
+		<declaration>clock c;</declaration>
+		<location id="id48" x="-586" y="-229">
+			<name x="-611" y="-280">fresh</name>
+			<label kind="invariant" x="-654" y="-263">c&lt;=sortingFreshTime</label>
+		</location>
+		<location id="id49" x="-25" y="-229">
+			<name x="-42" y="-280">dried</name>
+			<label kind="invariant" x="-42" y="-263">c&lt;=5</label>
+		</location>
+		<init ref="id48"/>
+		<transition id="id50">
+			<source ref="id49"/>
+			<target ref="id48"/>
+			<label kind="guard" x="-59" y="-59">c==5</label>
+			<label kind="assignment" x="-586" y="-59">c=0</label>
+			<nail x="-25" y="-59"/>
+			<nail x="-586" y="-59"/>
+		</transition>
+		<transition id="id51">
+			<source ref="id48"/>
+			<target ref="id49"/>
+			<label kind="guard" x="-433" y="-254">c==sortingFreshTime</label>
+		</transition>
+	</template>
+	<system>SchedulerMachine0 = SchedulerMachine(0);
+SchedulerMachine1 = SchedulerMachine(1);
+SchedulerMachine2 = SchedulerMachine(2);
+
+SchedulerState0 = SchedulerState(0);
+SchedulerState1 = SchedulerState(1);
+
+CuttingMachine0 = CuttingMachine(0);
+CuttingMachine1 = CuttingMachine(1);
+CuttingMachine2 = CuttingMachine(2);
+
+//system SchedulerMachine0, SchedulerMachine1, SchedulerMachine2, CuttingMachine0, CuttingMachine1, CuttingMachine2;
+//system SchedulerState0, SchedulerState1;
+//system SchedulerState0, SchedulerState1, SchedulerMachine0, SchedulerMachine1, SchedulerMachine2, CuttingMachine0, CuttingMachine1, CuttingMachine2;
+
+//system SchedulerDB, DB, CuttingMachine0, CuttingMachine1, CuttingMachine2, SortingSubsystem;
+system SchedulerDB, DB, SchedulerState0, SchedulerState1, SchedulerMachine0, SchedulerMachine1, SchedulerMachine2, CuttingMachine0, CuttingMachine1, CuttingMachine2, SortingSubsystem;</system>
+	<queries>
+		<option key="--hashtable-size" value="31"/>
+		<option key="--epsilon" value="0.01"/>
+		<option key="--diagnostic" value="0"/>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>No deadlock</comment>
+			<result outcome="success" type="quality" timestamp="2025-11-12 12:44:33 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--diagnostic" value="0"/>
+			</result>
+		</query>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] (CuttingMachine0.waiting imply CuttingMachine0.c &lt; 5))</formula>
+			<comment>If a machine is in waiting state (so it has sent a heartbeat without blade type), it should wait less than 5 seconds. Used to test the scheduler latency between a new machine is connected and when it's included in the production plan</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-12 12:59:55 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] (CuttingMachine0.failed imply (CuttingMachine0.c &lt;= 30)))</formula>
+			<comment>Checks that a machine doesn't get stuck on the failed state, so it's more to check that uppaal is correctly configured but it doesn't affect the experiment</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-12 13:03:15 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] ! (SchedulerState0.active &amp;&amp; SchedulerState1.active))</formula>
+			<comment>Verifies that only one scheduler is active at the same time, to avoid both to answer to the same problem.</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-12 13:06:23 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] (freshA &gt;= 0 &amp;&amp; freshA &lt;= 100 &amp;&amp; freshB &gt;= 0 &amp;&amp; freshB &lt;= 100 &amp;&amp; driedA &gt;= 0 &amp;&amp; driedA &lt;= 100 &amp;&amp; driedB &gt;= 0 &amp;&amp; driedB &lt;= 100))</formula>
+			<comment>Verifies that storage levels are always between 0 and 100</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-28 15:12:08 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] ((CuttingMachine0.workingA || CuttingMachine0.workingB) imply (SchedulerMachine0.assignBlade == false)))</formula>
+			<comment>Checks that the template of the scheduler that checks the cutting machine 0 is alligned with the state of the cutting machine 0
+Used to verify that the scheduler doesn't send AssignBlade messages while the machine is already working (in this case the right message will be SwapBlade)</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-12 13:11:58 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+		<query>
+			<formula>Pr[&lt;=1000] ([] !(SchedulerState0.active || SchedulerState1.active) imply (SchedulerState0.c &lt;= 11 &amp;&amp; SchedulerState1.c &lt;= 11))</formula>
+			<comment>What it checks: If both schedulers are down, it lasts at most 11 time units (failover time). This time is still pretty high for a real world scenario, so in the experiment we added Redis to reduce it to 5 seconds.</comment>
+			<result outcome="success" type="interval" value="≥ 0.990026 (95% CI)" timestamp="2025-11-28 16:20:39 +0100">
+				<option key="--hashtable-size" value="31"/>
+				<option key="--epsilon" value="0.01"/>
+				<option key="--diagnostic" value="0"/>
+				<details>≥ 0.990026 (95% CI)</details>
+			</result>
+		</query>
+	</queries>
+</nta>
