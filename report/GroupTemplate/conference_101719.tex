@@ -34,6 +34,8 @@
 \usepackage{subcaption}
 \usepackage{array, multirow}
 \usepackage{enumitem}
+\usepackage{placeins}
+\usepackage{float}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -125,13 +127,13 @@ The formal analysis confirms correct enforcement of storage bounds and safe fail
 \end{abstract}
 
 \section*{Acknowledgment}
-Portions of the text have been revised with the assistance of an AI-based grammar and style tool.
+Portions of the text have been revised with the assistance of an AI-based grammar and style tool; AI-based tools were employed for linguistic editing of the report and for supporting code development.
 
 \section{Introduction and Motivation} 
 
 Modern production environments increasingly rely on software-intensive systems to coordinate heterogeneous machines, react to fluctuating demand, and tolerate failures. In such settings, architectural decisions strongly influence the ability of the system to remain available under faults, to scale with additional resources, and to be modified safely as requirements evolve. This paper investigates these concerns in the context of an automated pasta production system, where a central Scheduler coordinates multiple cutting and sorting machines based on storage levels and machine health. Our motivation is to design and analyse an architecture that not only fulfils the required functionality, but also provides quantitative evidence that key quality attributes; such as modifiability, availability and scalability; are achieved.
 
-
+The remainder of this paper is organised as follows. Section~\ref{sec:problem} describes the problem context and outlines our research questions and overall approach. Section~\ref{sec:use_case} derives the main use cases and quality attribute scenarios that drive the architecture. Section~\ref{sec:design} presents the resulting system architecture and discusses key design trade-offs. Section~\ref{sec:formal_verification} reports the formal verification results obtained with UPPAAL, and Section~\ref{sec:evaluation} presents the empirical evaluation under controlled fault injection. Finally, Section~\ref{sec:conclusion} concludes the paper and highlights future work.
 
 \section{Problem and Approach}
 \label{sec:problem}
@@ -216,7 +218,7 @@ The behaviour of the system is driven by a combination of functional and non-fun
     \end{tabular}%
     }
 \end{table}
-\newpage
+
 Together, these requirements define both the operational workflow (e.g.\ storage monitoring, heartbeats, reaction times) and the expected quality levels (e.g.\ availability, scalability, security). They provide the basis for the primary use cases that we use to drive architectural decisions and later verification and evaluation activities.
 
 \begin{table}[h]
@@ -245,7 +247,7 @@ Together, these requirements define both the operational workflow (e.g.\ storage
 Based on these requirements, we derived a small set of primary use cases that represent the most important interactions with the system. These use cases, summarised in Table~\ref{tab:use_cases}, were then used as drivers for the architectural design, the UPPAAL model, and the empirical experiment.
 
 
-\begin{table}
+\begin{table}[H]
 \centering
 \caption{Primary use cases}
 \begin{tabular}{p{0.12\linewidth} p{0.78\linewidth}}
@@ -269,7 +271,7 @@ Machines periodically send heartbeat messages via Kafka. The Monitoring Subsyste
 Use cases UC-1 and UC-2 capture the core dynamic behaviour of the system: reacting to storage-level changes and handling machine status changes through heartbeats and failures. In the next step, we refined these use cases into quality attribute scenarios that specify measurable response times and robustness properties, which are then used as the main evaluation criteria.
 
 \section{Quality Attribute Scenarios}
-While the functional and non-functional requirements state what is needed at a high level, the quality attribute scenarios in Table~\ref{tab:quality_attributes} make these requirements operational by binding them to concrete situations, responses, and time bounds. Each scenario is explicitly linked to one or more use cases, ensuring traceability from requirements through design to evaluation. These scenarios also provide the metrics used in our empirical evaluation.
+While the functional and non-functional requirements state what is needed at a high level, the quality attribute scenarios in Table~\ref{tab:quality_attributes} make these requirements operational by binding them to concrete situations, responses, and time bounds. We elicited a larger set of quality attributes and scenarios internally; however, due to space constraints and to keep the evaluation focused, Table~\ref{tab:quality_attributes} reports only the highest-priority, most representative scenarios that drive the architectural design and the formal and empirical evaluation in this paper. Each scenario is explicitly linked to one or more use cases, ensuring traceability from requirements through design to evaluation. These scenarios also provide the metrics used in our empirical evaluation.
 
 \begin{table}[h]
 \centering
@@ -459,7 +461,7 @@ This section describes the empirical evaluation of the proposed system design. O
 \item \textbf{Availability Testing:} Availability is tested through controlled fault injection specifically, by randomly killing machines or the scheduler to observe the subsequent recovery and failover mechanisms. A failure in a system occurs when it no longer delivers a service consistent with its specification, and this evaluation focuses on ensuring fault mitigation and recovery. \end{itemize}
 
 \subsubsection{Technologies and System Summary}
-The evaluation environment is based on the implemented Pasta Production system architecture. Key technologies involved in the execution environment include: Python (for the Simulator and Adapter), Java (for the core logic components: Scheduler and Shadow Scheduler), and Redis for fast coordination and leader election. The architecture relies on MQTT for lightweight Edge Communication and leverages a robust Kafka ecosystem for reliable communication between the Java components. This infrastructure, especially the use of Redis, was driven by the formal verification process to ensure highly responsive heartbeat detection and immediate scheduler failover.
+The evaluation environment is based on the implemented Pasta Production system architecture. Key technologies involved in the execution environment include: Python (for the Simulator and Adapter), Java (for the core logic components: Scheduler and Shadow Scheduler), and Redis for fast coordination and leader election. We chose Python for rapid prototyping and scripting of the simulation and adapter logic, and Java for its mature ecosystem and predictable performance when implementing long-running core services. The architecture relies on MQTT for lightweight Edge Communication and leverages a robust Kafka ecosystem for reliable communication between the Java components. This infrastructure, especially the use of Redis, was driven by the formal verification process to ensure highly responsive heartbeat detection and immediate scheduler failover.
 
 \subsubsection{Treatments (Independent Variables)}
 The experiment employs a multivariate design, manipulating several factors (independent variables) to observe their effect on performance and availability. In experimental design, independent variables are deliberately manipulated and controlled, and the term factor refers to those variables being studied by changing their values. A treatment represents one particular value of a factor \cite{Wohlin2000Experimentation} (Chapter 4,Chapter 6).
@@ -547,6 +549,7 @@ Crucially, the experiment showed that the total number of \texttt{machineFailure
 
 The analysis of system latency, measured on a ratio scale, directly assesses the system's ability to satisfy its high-priority Quality Attribute Scenarios, providing quantifiable evidence of architectural efficacy.
 
+
 \begin{table}[h!]
 \centering
 \caption{Latency measurements per event type}
@@ -582,6 +585,9 @@ Across all event types, the average scheduler latency constitutes most of the to
 Since scheduler computation dominates latency, future performance optimization should primarily target reducing computational overhead within the scheduler.
 
 Overall, the quantitative results provide controlled, empirical evidence that the chosen architectural tactics including Redis for low-latency coordination, Kafka for reliable message delivery, and structured scheduler logic successfully enable the system to meet its most critical quality attribute requirements for speed and resilience.
+
+\subsubsection{Limitations and Improvement Opportunities}
+Although the measured latencies satisfy the stated requirements, the results also highlight potential improvement opportunities. First, scheduler computation dominates end-to-end latency across all event types, suggesting that further performance gains should focus on reducing scheduling overhead (e.g., incremental plan updates, caching of stable machine capabilities, or more efficient assignment heuristics). Second, the experiment revealed saturation under heavy fault load, where corrective actions (e.g.\ blade swaps) may be impossible when too few machines remain available. A practical mitigation would be to introduce explicit `degraded mode' behaviour that prioritises essential production goals, surfaces capacity shortages to operators, and triggers controlled backpressure (e.g.\ slowing intake or rescheduling demand) rather than attempting infeasible plan adjustments.
 
 \section{Conclusion} 
 \label{sec:conclusion}
