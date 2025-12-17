@@ -133,8 +133,7 @@ Portions of the text have been revised with the assistance of an AI-based gramma
 
 Modern production environments increasingly rely on software-intensive systems to coordinate heterogeneous machines, react to fluctuating demand, and tolerate failures. In such settings, architectural decisions strongly influence the ability of the system to remain available under faults, to scale with additional resources, and to be modified safely as requirements evolve. This paper investigates these concerns in the context of an automated pasta production system, where a central Scheduler coordinates multiple cutting and sorting machines based on storage levels and machine health. Our motivation is to design and analyse an architecture that not only fulfils the required functionality, but also provides quantitative evidence that key quality attributes; such as modifiability, availability and scalability; are achieved.
 
-The remainder of this paper is organised as follows. Section~\ref{sec:problem} describes the problem context and outlines our research questions and overall approach. Section~\ref{sec:use_case} derives the main use cases and quality attribute scenarios that drive the architecture. Section~\ref{sec:design} presents the resulting system architecture and discusses key design trade-offs. Section~\ref{sec:formal_verification} reports the formal verification results obtained with UPPAAL, and Section~\ref{sec:evaluation} presents the empirical evaluation under controlled fault injection. Finally, Section~\ref{sec:conclusion} concludes the paper and highlights future work.
-
+The remainder of this paper is organised as follows. Section~\ref{sec:problem} describes the problem context and outlines our research questions and overall approach. Section~\ref{sec:related_work} provides the motivation for the architectural tactics and evaluation methods applied in this work. Section~\ref{sec:use_case} derives the main use cases and quality attribute scenarios that drive the architecture. Section~\ref{sec:design} presents the resulting system architecture and discusses key design trade-offs. Section~\ref{sec:formal_verification} reports the formal verification results obtained with UPPAAL, and Section~\ref{sec:evaluation} presents the empirical evaluation under controlled fault injection. Finally, Section~\ref{sec:conclusion} concludes the paper and highlights future work.
 
 \section{Problem and Approach}
 \label{sec:problem}
@@ -160,6 +159,7 @@ The following steps are taken to answer this paper's research questions:
 
 
 \section{Related Work}
+\label{sec:related_work}
 
 The following subsection outlines the design principles and architectural choices that guided the development of the system in light of the research discussed above.
 
@@ -297,7 +297,7 @@ UC2 \\
 \label{tab:quality_attributes}
 \end{table}
 
-Finally, when deriving the architecture from these scenarios, we also identified a set of explicit constraints that restrict possible design options. Table~\ref{tab:constraints} summarises the key architectural constraints that were assumed throughout the project, such as centralised scheduling and dependence on specific event-driven technologies. These constraints are important when interpreting both the design decisions and the evaluation results.
+Finally, when deriving the architecture from these scenarios, we also identified a set of explicit constraints that restrict possible design options. Table~\ref{tab:constraints} summarises the key architectural constraints that were assumed throughout the project, such as centralised scheduling. These constraints are important when interpreting both the design decisions and the evaluation results.
 
 \begin{table}[h]
 \centering
@@ -453,7 +453,7 @@ To address this vulnerability and create a more resilient system, we implemented
 This section describes the empirical evaluation of the proposed system design. Our overall experimental approach follows the guidelines of Wohlin et al.~\cite{Wohlin2000Experimentation} and is organised into the phases of Definition, Planning, Operation, and Analysis.
 
 
-\subsection{Experiment design} \label{sec:design} The planning phase of the experiment determines how the tests (trials) are organized to maximize efficacy and align with the intended statistical analysis.
+\subsection{Experiment design} \label{sec:experiment_design} The planning phase of the experiment determines how the tests (trials) are organized to maximize efficacy and align with the intended statistical analysis.
 
 \subsubsection{Goal Definition} The goal of the evaluation, defined using an approach similar to the Goal/Question/Metric paradigm, is to test the performance of the reaction to events and assess system availability when subjecting key components to controlled failures.
 
