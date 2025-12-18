@@ -527,7 +527,7 @@ To address this, the analysis approach has been refined to correctly handle scen
 
 The empirical evaluation followed the established phases of experimentation: Definition, Planning, Operation, and Analysis and Interpretation.
 The collected experimental data undergoes quantitative interpretation structured to draw valid conclusions. This analysis was conducted in primary steps that first involved characterizing the data using descriptive statistics. Descriptive statistics aim to give an informal understanding of the data's distribution through measures of central tendency, dispersion, and graphical visualization of the data (e.g., event counts) \cite{Wohlin2000Experimentation}. Following this characterization, the data underwent systematic analysis, typically through hypothesis testing, to rigorously evaluate the derived latency values against the stated requirements.
-These analyses confirmed the system's responsiveness and demonstrated that the architectural design successfully addresses critical requirements, ensuring fulfillment of key quality attributes such as System Availability (NFR-10), Production Modifiability (FR-2), and System Scalability (NFR-9).
+These analyses confirmed the system's responsiveness and demonstrated that the architectural design successfully addresses critical requirements, ensuring fulfillment of key quality attributes such as System Availability (QA-1), Production Modifiability (QA-2), and System Scalability (QA-3).
 
 Each scenario was executed over 200 minutes (12000 seconds). All system messages were captured in Kafka during this period, and analysis focused on the three event types explained previously
 
@@ -577,7 +577,7 @@ The \texttt{machineFailure} event measures the time required for the system to d
 
 \paragraph{Integration Latency (\texttt{newMachine})}
 
-The \texttt{newMachine} event measures the system’s ability to assimilate new resources, addressing System Scalability (NFR-9). This was the most frequent event type (465 occurrences). The average total latency was 9.409 seconds, which is acceptable because resource integration is less time-critical than fault recovery. This value aligns closely with FR-13, which requires machines to react to production plan changes within $\leq 10$ seconds.
+The \texttt{newMachine} event measures the system’s ability to assimilate new resources, addressing System Scalability (QA-3). This was the most frequent event type (465 occurrences). The average total latency was 9.409 seconds, which is acceptable because resource integration is less time-critical than fault recovery. This value aligns closely with FR-13, which requires machines to react to production plan changes within $\leq 10$ seconds.
 
 \subsubsection{Interpretation of Design Decisions}
 
